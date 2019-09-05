@@ -1,3 +1,7 @@
+# (c) 2019 Francis Taylor
+# This code is licensed under the MIT license (see LICENSE for details)
+# This code is provided as a guide for learning. Please do not copy it blindly.
+
 import math
 
 # cos(x) - x^3 = 0
@@ -10,8 +14,8 @@ x_new = 1
 
 def newton(x_old):
     '''This function computes x_(n+1) = x_n - f(x_n)/[dy/dx] '''
-    x_new = x_old - ((math.cos(x_old) - math.pow(x_old, 3)) /
-                     (-1 * math.sin(x_old) - 3*math.pow(x_old, 2)))
+    x_new = x_old - ((math.cos(x_old) - math.pow(x_old, 3))
+                     / (-1 * math.sin(x_old) - 3*math.pow(x_old, 2)))
     return x_new
 
 

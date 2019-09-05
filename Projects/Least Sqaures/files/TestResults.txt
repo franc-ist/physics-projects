@@ -1,0 +1,10 @@
+Data Set: LinearTestdata.txt
+y = A + B x
+A=4.270666e-002 sigma A = 2.037464e-004 
+B=7.272375e-004 sigma B= 8.386543e-006
+
+
+Data Set: LargeDataSet.txt
+y = A + B x
+A=4.499998e+000 sigma A = 5.771447e-003 
+B=1.007627e-004 sigma B= 9.988277e-007
