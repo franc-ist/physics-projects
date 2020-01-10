@@ -1,0 +1,197 @@
+\documentclass[twocolumn,prl,nobalancelastpage,aps,10pt]{revtex4-1}
+%\documentclass[rmp,preprint]{revtex4-1}
+\usepackage{graphicx,bm,times,notoccite}
+\graphicspath{{figures/}}
+
+\usepackage{float} %useful to structure the figures if they're not going where you'd like them to. When beginning a figure environment with "\begin{figure}" add An H to the end to make the placement more forceful like "\begin{figure}[H]"
+
+\usepackage{gensymb} %has some extra symbols like the degree symbol 
+
+\begin{document}
+
+\title{Investigating the motion of a body in free-fall experiencing drag}
+
+\author{Francis Taylor}
+
+\affiliation{Department of Physics, University of Bristol}
+
+\begin{abstract}The motion of a body in free-fall experiencing fixed and varying drag was modelled using the Euler method for solving ordinary differential equations. The effect of varying the mass, $m$, of the body and time step, $\Delta t$, was investigated, and it was found that at higher $\Delta t$ the model produced better approximations for higher masses. This model was applied to Felix Baumgartner's free-fall jump from the edge of space. It was concluded that the Euler model with varying drag gives the best approximation to Baumgartner's actual jump.
+\end{abstract}
+\date{\today}
+
+\maketitle
+
+\section{INTRODUCTION AND THEORY}
+
+
+For a body in free-fall, i.e. with no initial acceleration, only two forces act on it: weight and drag. As it begins to fall, it will have an initial acceleration due to gravity. While falling, the frictional force from the air increases, decreasing the downwards acceleration. This is due to Isaac Newton's third law of motion, as every action has an equal and opposite reaction \cite{Newton1846}. At some point during the free-fall, the force due to gravity will balance with the force from air resistance, and the body will stop accelerating - it has reached its terminal velocity, and will fall with constant speed. In a uniform gravitational field with air resistance, the equation of motion will be
+\begin{equation}\label{eq-motion}
+m\frac{dv}{dt} = mg - \frac{1}{2}\rho C_{D}Av^{2},
+\end{equation}
+where $m$ is the mass of the object, $v$ is the velocity of the object, $t$ is time, $g$ is the acceleration due to gravity, $\rho$ is the density of the air, $C_{D}$ is the drag coefficient and $A$ is the cross-sectional area. Integrating this gives
+\begin{equation}\label{eq-v}
+v(t) = v_{\infty}\tanh(\frac{gt}{v_{\infty}}),
+\end{equation}
+where $v_{\infty}$ is
+\begin{equation}\label{eq-terminal-v}
+v_{\infty} = \sqrt{\frac{2mg}{\rho C_{D} A}}.
+\end{equation}
+
+\subsection{Euler's Method}
+Euler's method is an iterative numerical method for solving first order ordinary differential equations (ODEs), and is an example of a Runge-Kutta method \cite{Butcher2003}. Consider an unknown curve, that we wish to calculate the shape of, which starts at a known point, $A_{0}$ and satisfies a differential equation. We can break the curve into small steps $\delta x$, and calculate the slope of the curve at the start of the step, $A_{n}$, and thus we get a tangent line. This can be repeated for the length of the unknown curve to form a polygonal approximation. The error between this line and the curve is proportional to $(\delta x)^{2}$. By decreasing $\delta x$, the slope at $A_{n}$ will be closer to the unknown curve, and thus for $\delta x$ small enough, we get a good approximation of the unknown curve \cite{Butcher2003,Atkinson1989}. Figure \ref{Euler-method} shows an Euler approximation in comparison to the unknown curve.
+
+\begin{figure}[H]
+\includegraphics*[width=0.96\linewidth,clip]{Euler_method}
+\caption{Illustration of the Euler method. The unknown curve is in blue, and its polygonal approximation is in red. Figure from \cite{Alexandrov2007}.}\label{Euler-method}
+\end{figure}
+
+Given a differential equation
+\begin{equation}
+\frac{dy}{dt} = f(y,t),
+\end{equation}
+where $y$ is vertical height and $t$ is time, Euler's method can be summarised by
+\begin{equation}
+y_{n+1} = y_{n} + \Delta t.f(y_{n},t_{n})\quad;\quad t_{n+1} = t_{n} +\Delta t,
+\end{equation}
+where $\Delta t$ is the chosen time interval.
+By applying this method to equation \ref{eq-v}, we get
+\begin{equation}\label{eq-iterative-v}
+v_{n+1} = v_{n} - \Delta t(g+\frac{k}{m}|v_{n}|v_{n}),
+\end{equation}
+where k is the drag factor, given by
+\begin{equation}
+k = \frac{C_{D}\rho A}{2}.
+\end{equation}
+If the air density isn't constant \cite{Mohazzabi1996},
+\begin{equation}\label{eq-va-air-dens}
+\rho(y)=\rho_{0}exp(-y/h),
+\end{equation}
+where $y$ is the height and $h$ is a scaling constant (7640m on Earth). The height, $y$, is given by
+\begin{equation}\label{eq-iterative-y}
+y_{n+1} = y_{n}+\Delta t.v_{n}.
+\end{equation}
+By inputting initial values of $v_{0}$, $y_{0}$, and $t_{0}$, all values of $v_{n}$, $y_{n}$ and $t_{n}$ could be calculated.
+\subsection{Analytical Method}
+The Euler method was used to approximate the trajectory of a body in free-fall experiencing a force due to drag. In order to check the accuracy of the Euler approximation, it was compared to an analytical approximation. The analytical prediction for height was given by
+\begin{equation}
+y = y_{0}-\frac{m}{k}\ln(\cosh(\sqrt{\frac{kg}{m}}t)),
+\end{equation}
+and for velocity,
+\begin{equation}
+v = -\sqrt{\frac{mg}{k}}\tanh(\sqrt{\frac{kg}{m}}t),
+\end{equation}
+\subsection{Speed of Sound}
+The speed of sound is the distance travelled per unit time by a sound wave. At 20\degree C, it is about 343ms$^{-1}$, however this is variable, and depends on the temperature of the air,
+\begin{equation}
+v_{sound} = \sqrt{\frac{\gamma RT}{M}},
+\end{equation}
+where $\gamma$ is the adiabatic constant of the medium, $R$ is the gas constant, $M$ is the molecular mass of the gas, and $T$ is the absolute temperature. $\gamma$, $R$ and $M$ are all constant, so at higher altitudes where the temperature decreases, the speed of sound decreases \cite{Everest2001}.
+\section{RESULTS AND DISCUSSION}
+
+The vertical velocity and height of a body in free-fall from a height of 1 kilometre was modelled using Euler's method. The body had a cross-sectional area of 0.95m$^{2}$, which was kept constant, and the time step, $\Delta t$, was varied, and the Euler approximation compared with an analytical prediction. Figures \ref{ana-fig-ht-t=0.25} and \ref{ana-fig-vt-t=0.25} show the height and vertical velocity of a body plotted against time. Both plots follow the analytical approximation almost exactly. This shows that a small time step in Euler's approximation gives a very accurate prediction of the motion of a body.
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-ht-t=025}
+	\caption{Height-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  0.1s.}\label{ana-fig-ht-t=0.25}
+\end{figure}
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-vt-t=025}
+	\caption{Vertical velocity-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  0.1s.}\label{ana-fig-vt-t=0.25}
+\end{figure}
+As $\Delta t$ increases, the Euler approximation becomes increasingly less accurate, as seen in figures \ref{ana-fig-ht-t=2.0} and \ref{ana-fig-vt-t=2.0} (with $\Delta t$ equalling 2s), with a noticeable deviation from the analytical solution for the height-time graph, and a poorly defined curve for the velocity-time graph.
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-ht-t=20}
+	\caption{Height-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  2.0s.}\label{ana-fig-ht-t=2.0}
+\end{figure}
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-vt-t=20}
+	\caption{Vertical velocity-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  2.0s.}\label{ana-fig-vt-t=2.0}
+\end{figure}
+Increasing $\Delta t$ further causes the Euler approximation to break down, with the height-time graph becoming two straight lines at $t<5$s in figure \ref{ana-fig-ht-t=4.0}, compared to the smooth curve of the analytical solution, and the velocity-time graph becoming jagged in figure \ref{ana-fig-vt-t=4.0}.
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-ht-t=40}
+	\caption{Height-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  4.0s.}\label{ana-fig-ht-t=4.0}
+\end{figure}
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-vt-t=40}
+	\caption{Vertical velocity-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  4.0s.}\label{ana-fig-vt-t=4.0}
+\end{figure}
+As the mass of the body decreases, the Euler approximation becomes less accurate at larger time steps. Figures \ref{ana-fig-htm-t=2.0} and \ref{ana-fig-vtm-t=2.0} show the height-time and velocity-time graphs for a body of mass $m=25$kg and $\Delta t=2.0$s. Compared to figures \ref{ana-fig-ht-t=2.0} and \ref{ana-fig-vt-t=2.0}, there is a clear difference; the height-time graph is similar in shape to that in figure \ref{ana-fig-ht-t=4.0} ($\Delta t =4.0$s, $m=100$kg), but lying closer to the analytical solution, and the velocity-time is jagged like in figure \ref{ana-fig-vt-t=4.0} ($\Delta t =4.0$s, $m=100$kg), but with a smaller period of oscillation.
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-htm-t=20}
+	\caption{Height-time graph for a body of mass 25kg approximated using a time step $\Delta t$ of  2.0s.}\label{ana-fig-htm-t=2.0}
+\end{figure}
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{ana-fig-vtm-t=20}
+	\caption{Vertical velocity-time graph for a body of mass 25kg approximated using a time step $\Delta t$ of  2.0s.}\label{ana-fig-vtm-t=2.0}
+\end{figure}
+
+The Euler method was then compared with the modified Euler method, which accounted for a varying drag factor. For small $\Delta t$, both approximations have similar shapes, with the modified Euler method (varying drag) lying below the normal Euler method (fixed drag) for both height-time and velocity-time, as seen in figures \ref{euler-fig-ht-t=0.25} and \ref{euler-fig-vt-t=0.25}. The velocity curve is more pronounced in the modified Euler method, and it rises to meet the Euler method curve as $t$ increases.
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{euler-fig-ht-t=025}
+	\caption{Height-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  0.1s with varying drag.}\label{euler-fig-ht-t=0.25}
+\end{figure}
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{euler-fig-vt-t=025}
+	\caption{Vertical velocity-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  0.1s with varying drag.}\label{euler-fig-vt-t=0.25}
+\end{figure}
+As $\Delta t$ increases, both approximations behave similarly, however the gap between them increases slightly. This can be seen in figures \ref{euler-fig-ht-t=2.0} and \ref{euler-fig-vt-t=2.0}.
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{euler-fig-ht-t=20}
+	\caption{Height-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  2.0s with varying drag.}\label{euler-fig-ht-t=2.0}
+\end{figure}
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{euler-fig-vt-t=20}
+	\caption{Vertical velocity-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  2.0s with varying drag.}\label{euler-fig-vt-t=2.0}
+\end{figure}
+Once again, as $\Delta t$ is increased further, the height-time graph behaves as with the normal Euler method, and the velocity-time graph become quite jagged, with the modified method having a greater deviation from what it should be. This is seen in figures \ref{euler-fig-ht-t=4.0} and \ref{euler-fig-vt-t=4.0}.
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{euler-fig-ht-t=40}
+	\caption{Height-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  4.0s with varying drag.}\label{euler-fig-ht-t=4.0}
+\end{figure}
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{euler-fig-vt-t=40}
+	\caption{Vertical velocity-time graph for a body of mass 100kg approximated using a time step $\Delta t$ of  4.0s with varying drag.}\label{euler-fig-vt-t=4.0}
+\end{figure}
+
+\subsection{Modelling Baumgartner's Jump}
+
+An approximation of Felix Baumgartner's jump was simulated using the modified Euler method. Baumgartner was taken to have a mass of 64kg, jumping from  a height of 39045m. He jumped head-first, so the cross-sectional area was taken to be that of his shoulders (approximately $0.5$m$\times0.1$m), and $\Delta t=0.25$s. The scaling height in equation \ref{eq-va-air-dens} was taken as 7460m. The drag coefficient could be varied by the user, however it was set as 1.3 for this problem. With these parameters, the maximum speed reached by Baumgartner in this simulation was over 500ms$^{-1}$ at $t=65$s, and he broke the sound barrier at a speed of 312.7ms$^{-1}$ at roughly $t=35$s, and a height of 33938m above ground. The orange line on figure \ref{Baumgartner-vt} shows the sound barrier for the speed at which Baumgartner broke it, as this varies depending on the temperature of the air, and thus height of the body falling. According to the simulation, Baumgartner completed his jump in 125 seconds. However, in Baumgartner's jump, he took at least double this time to complete his jump, suggesting the values used for cross-sectional area and drag coefficient were incorrect. 
+\begin{figure}[H]
+	\includegraphics*[width=0.96\linewidth,clip]{Baumgartner-ht}
+	\caption{Height-time graph for Baumgartner's free-fall jump, approximated using a time step $\Delta t$ of 0.25s with varying drag.}\label{Baumgartner-ht}
+\end{figure}
+\begin{figure}[H]
+	\includegraphics*[width=0.96\linewidth,clip]{Baumgartner-vt}
+	\caption{Vertical velocity-time graph for Baumgartner's free-fall jump, approximated using a time step $\Delta t$ of 0.25s with varying drag.}\label{Baumgartner-vt}
+\end{figure}
+By adjusting these values, a much closer approximation to his jump was obtained. This is seen in figures \ref{Baumgartner-ht2} and \ref{Baumgartner-vt2}. The drag coefficient was reduced to 1.08, and the cross-sectional area and mass increased to 0.28m$^{2}$ and 70kg respectively to account for extra equipment he was carrying. With this new simulation, the maximum speed was much more realistic, at approximately 370ms$^{-1}$ at $t=50$s. Baumgartner broke the sound barrier at a speed of 311.5ms$^{-1}$ and a height of 33316m, and had a much longer flight time of 245s.
+\begin{figure}[H]
+	\includegraphics*[width=0.96\linewidth,clip]{Baumgartner-ht2}
+	\caption{Height-time graph for Baumgartner's free-fall jump, approximated using a time step $\Delta t$ of 0.25s with varying drag and improved parameters.}\label{Baumgartner-ht2}
+\end{figure}
+\begin{figure}[H]
+	\includegraphics*[width=0.96\linewidth,clip]{Baumgartner-vt2}
+	\caption{Vertical velocity-time graph for Baumgartner's free-fall jump, approximated using a time step $\Delta t$ of 0.25s with varying drag and improved parameters.}\label{Baumgartner-vt2}
+\end{figure}
+
+\section{IMPROVEMENTS TO CODE}
+
+The program could have been improved by extending the approximations to include a different, more accurate Runge-Kutta approximation for the differential equation. The simulation could have been extended by simulating a parachute after a certain height had been reached. Better validation could have been added to the custom values section, instead of defaulting to a hard-programmed value, as well as restricting $\Delta t$ and $v_{0}$ values to prevent unexpected behaviour. During the jump, the drag coefficient would not have remained constant, as it is dependent on $v$, so corrections could be added to the code to account for this. As well as this, Baumgartner did not remain rotationally stationary during his jump, so his cross-sectional area may have changed, and corrections could be made for this by randomly varying the cross-sectional area within a small range to simulate this behaviour. The code could be made more concise by moving some re-used sections of code into their own function, and while attempts were made to do this, there are several other areas where this could have been done, especially with the calculation of the sound barrier.
+
+\section{CONCLUSIONS}
+
+The Euler model has been shown to be valuable in approximating ordinary differential equations and modelling an object in free-fall. It could be made better by reducing $\Delta t$, however this change would be negligible below $\Delta t = 0.2$s, and so this may be unnecessary. To improve on the model, a different Runge-Kutta method of solving an ODE could be used, allowing a larger $\Delta t$ to be used while giving the same error, significantly reducing the computational load and making the program more efficient.
+
+\section{REFERENCES}
+%Do not include material in your reference list that is not specifically referred to in the text.  It is not a list of
+%things you have read but rather a list of things you refer to in the text. Only refer to web based material if
+%absolutely necessary. You should refer, where ever possible, to the original material in a textbook or academic
+%journal.   A good report should have many references - showing that the subject has been widely researched.  The style
+%to be used for the references is shown below.
+
+\bibliographystyle{unsrt}
+\bibliography{C:/Users/Francis/Documents/Bibtex/Coding-Report-2}
+
+
+
+\end{document}
