@@ -1,0 +1,170 @@
+\documentclass[twocolumn,prl,nobalancelastpage,aps,10pt]{revtex4-1}
+%\documentclass[rmp,preprint]{revtex4-1}
+\usepackage{graphicx,bm,times,amsmath}
+\usepackage{float} %useful to structure the figures if they're not going where you'd like them to. When beginning a figure environment with "\begin{figure}" add An H to the end to make the placement more forceful like "\begin{figure}[H]"
+\usepackage{gensymb} %has some extra symbols like the degree symbol 
+\graphicspath{{figures/}}
+
+\begin{document}
+
+\title{Investigating computational numerical integration using Simpson's rule for Fresnel diffraction}
+\author{Francis Taylor}
+\affiliation{Level 5 Laboratory, School of Physics, University of Bristol.}
+
+
+\date{\today}
+
+\begin{abstract}
+The diffraction patterns produced by monochromatic light passing through an aperture were modelled in one and two dimensions using Fresnel's diffraction equation, and evaluated using Simpson's $\frac{1}{3}$ rule for numerical integration. The effect of changing the distance from the aperture to the screen the patterns were projected onto, and changing the size and shape of the aperture were investigated. Suggestions for improvements to the model were made.
+\end{abstract}
+
+
+\maketitle
+
+\section{INTRODUCTION \& THEORY}
+
+Fresnel's diffraction equation for near-field diffraction is an approximate form of the more complex, and more widely applicable, Kirchoff diffraction equation \cite{Born1999}. It is used to model the diffraction pattern of light when a monochromatic light ray passes through a small aperture in an opaque screen \cite{Hecht2002}. Kirchoff's diffraction equation simplifies to the Fresnel diffraction equation when all terms of third- and higher-order can be neglected. This gives \cite{Born1999}:
+
+\begin{equation}
+\begin{aligned}
+E(x,y,z) = \frac{e^{ikz}}{i\lambda z} \iint E(x', y')\exp{\{\frac{ik}{2z}[(x-x')^{2}\\
+														  	  \qquad+(y-y')^{2}]\}}dx'dy',
+\end{aligned}
+\label{LongFresnel}
+\end{equation}
+
+which is the general form of the Fresnel diffraction equation. Here, $E$ is the electric field observed on a screen and is proportional to the intensity of light on the screen, $x$ and $y$ are the Cartesian coordinates on the screen, $z$ is the distance from the aperture to the screen, $x'$ and $y'$ are the width and height of the aperture respectively, and $k$ is the wave-number. By taking $E(x',y')$ to be zero everywhere apart from the aperture, where it has a constant value of $E_{0}$, we can simplify (\ref{LongFresnel}) to:
+
+\begin{equation}
+\begin{aligned}
+E(x,y,z) = \frac{kE_{0}}{2\pi z} \iint_{aperture} \exp{\{\frac{ik}{2z}[(x-x')^{2}\\
+														 \qquad+(y-y')^{2}]\}}dx'dy'.
+\end{aligned}
+\label{ShortFresnel}
+\end{equation} 
+
+From this, the observed diffraction intensity can be obtained from the square of the magnitude of $E$:
+
+\begin{equation}
+I(x,y,z) = \epsilon_{0} c E(x,y,z)E^{*}(x,y,z),
+\label{Intensity}
+\end{equation}
+
+where $\epsilon_{0}$ is the permittivity of free space, $c$ is the speed of light in vacuo, and $E^{*}$ is the complex conjugate of $E$. 
+
+\subsection{Simpson's Rule}
+The analytical solution of the Fresnel equation is impossible for most aperture geometries, therefore it is usually calculated numerically \cite{Sears1948}. One method is to use Simpson's Rule, which approximates a given function $f(x)$ by a series of evenly spaced quadratics. The general form of this is \cite{Hazewinkel1988}
+
+\begin{equation}
+\begin{aligned}
+\int_{a}^{b} f(x)dx \approx \frac{h}{3}[f(x_{0}) + 4f(x_{1}) +2f(x_{2}) + 4f(x_{3})\\
+										\qquad + 2f(x_{4}) + \cdots + 4f(x_{n-1}) + f(x_{n})],
+\end{aligned}
+\label{Simpson}
+\end{equation}
+
+where $n$ is the number of equally space divisions and the spacing $h = \frac{b-a}{n}$. The error between Simpson's approximation and the actual function scales with $\mathcal{O}(h^{5})$, so when $h$ is close to 0, there is an infinitesimal difference of a constant multiplied by $h^{5}$  \cite{Atkinson1989a, DeBruijn1970}. In this simulation, a function was written to perform a Fresnel integral using Simpson's $\frac{1}{3}$ rule, by iterating over the range $x'_{1}$ to $x'_{2}$, which are the physical limits of the aperture, for each value $x$ on the screen.
+
+\section{RESULTS \& DISCUSSION}
+
+The diffraction pattern of a $\lambda = 1 \times 10^{-6}$m wave passing through an aperture of horizontal size $2\times10^{-5}$m, projected onto a screen of width $0.01$m and distance $0.02$m from the aperture, was modelled using (\ref{Simpson}) over 100 equally spaced intervals. This produced a large central intensity peak, with several smaller secondary peaks on either side, as shown by figure \ref{1D_Default}. This suggests that with these parameters, a single bright spot would be seen on the screen, and this is supported by the 2-dimensional intensity map (figure \ref{2D_Default}) that uses the same parameters and a square aperture.
+
+\begin{figure}[!ht]
+	\includegraphics*[width=0.96\linewidth,clip]{1D_Default}
+	\caption{An intensity graph vs horizontal screen coordinate for the diffraction pattern, using the default parameters.} \label{1D_Default}
+\end{figure}
+
+\begin{figure}
+\includegraphics*[width=0.96\linewidth,clip]{2D_Default}
+\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, using the default parameters.} \label{2D_Default}
+\end{figure}
+
+The parameters were then adjusted, decreasing the distance to the screen from the aperture such that $z = 5\times10^{-5}$m, and the screen size was adjusted to $1\times10^{-4}$m in both $x$ and $y$ directions in order to see the near-field features. The 1-dimensional intensity plot produced (figure \ref{1D_smallZ}) shows two large symmetrical peaks, with a region of lower intensity between them. The 2-dimensional plot (figure \ref{2D_smallZ}) confirms this, with four bright spots containing a slightly dimmer central cross. Decreasing $z$ further to the width of the aperture, $2\times10^{-5}$m produces interesting results. The same two peaks are observed, however there are several secondary peaks between these with slightly less intensity. 
+
+\begin{figure}[!ht]
+	\includegraphics*[width=0.96\linewidth,clip]{1D_z5e-5}
+	\caption{An intensity graph vs horizontal screen coordinate for the diffraction pattern, using $z = 5\times10^{-5}$m, and a square screen of length $1\times10^{-4}$m.} \label{1D_smallZ}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{2D_z5e-5}
+	\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, using $z = 5\times10^{-5}$m, and a square screen of length $1\times10^{-4}$m.} \label{2D_smallZ}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{1D_z2e-5}
+	\caption{An intensity graph vs horizontal screen coordinate for the diffraction pattern, using $z = 2\times10^{-5}$m, and a square screen of length $1\times10^{-4}$m.} \label{1D_smallerZ}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{2D_z2e-5}
+	\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, using $z = 2\times10^{-5}$m, and a square screen of length $1\times10^{-4}$m.} \label{2D_smallerZ}
+\end{figure}
+
+The resolution is not very good when using $N=100$, as is used in figures \ref{1D_smallerZ} and \ref{2D_smallerZ}, and so N was increased to 500 , which produced the results seen in figures \ref{1D_smallerZ_highN} and \ref{2D_smallerZ_highN}. $N$ cannot go much higher than 500 without needing large amounts of RAM to perform the calculation, and so it has been limited to 500. The intensity peaks are more distinguished than in figures \ref{1D_smallerZ} and \ref{2D_smallerZ}, and the secondary fringes seen at the edges figures \ref{1D_smallerZ} and \ref{2D_smallerZ} not present in figures \ref{1D_smallerZ_highN} and \ref{2D_smallerZ_highN}. A larger value of $N$ was needed to see these features because the spacing between them was very small, and so a greater resolution is needed to see them clearly.
+
+\begin{figure}[!ht]
+	\includegraphics*[width=0.96\linewidth,clip]{1D_z2e-5_N500}
+	\caption{An intensity graph vs horizontal screen coordinate for the diffraction pattern, using $z = 2\times10^{-5}$m, and a square screen of length $1\times10^{-4}$m. $N=500$} \label{1D_smallerZ_highN}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{2D_z2e-5_N500}
+	\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, using $z = 2\times10^{-5}$m, and a square screen of length $1\times10^{-4}$m. $N=500$} \label{2D_smallerZ_highN}
+\end{figure}
+
+Conversely, increasing $z$ causing less features to be seen in the diffraction pattern, and it becomes a large diffuse point of light, as shown by figures \ref{1D_z20cm} and \ref{2D_z20cm}. Here $N$ has been set back to 100.
+
+\begin{figure}[!ht]
+	\includegraphics*[width=0.96\linewidth,clip]{1D_z20cm}
+	\caption{An intensity graph vs horizontal screen coordinate for the diffraction pattern, using $z = 0.2$m, and a square screen of length $0.01$m.} \label{1D_z20cm}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{2D_z20cm}
+	\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, using $z = 0.2$m, and a square screen of length $0.01$m.} \label{2D_z20cm}
+\end{figure}
+
+
+The effect of changing the size and shape of the aperture was also investigated. Figures \ref{1D_WIDTH5E-5} and \ref{2D_WIDTH5E-5} show the effect of a square aperture of width  $5\times10^{-5}$m. All other parameters are the same as in figures \ref{1D_Default} and \ref{2D_Default}. The intensity peak for the larger aperture is much thinner, but the comparative intensity is higher, as less light is being diffracted because the wavelength is much smaller than the aperture \cite{Hecht2002}. There is less spatial resolution with $N=100$, so the 1-dimensional peak is not as smooth and less-well defined as is the 2-dimensional intensity map, with a small, pixelated spot at the centre and faint secondary fringes extending along the $x$ and $y$ planes from the centre. Decreasing the aperture width to the size of the wavelength, $1\times10^{-6}$m, has a similar effect as increasing $d>>\text{screen size}$, whereby the diffraction pattern becomes a diffuse point, seen in figures \ref{1D_WIDTH1E-6} and \ref{2D_WIDTH1E-6}.
+
+\begin{figure}[!ht]
+	\includegraphics*[width=0.96\linewidth,clip]{1D_WIDTH5E-5}
+	\caption{An intensity graph vs horizontal screen coordinate for the diffraction pattern, with an aperture width of $5\times10^{-5}$m.} \label{1D_WIDTH5E-5}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{2D_WIDTH5E-5}
+	\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, with a square aperture of width of $5\times10^{-5}$m.} \label{2D_WIDTH5E-5}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{1D_WIDTH1E-6}
+	\caption{An intensity graph vs horizontal screen coordinate for the diffraction pattern, with an aperture width of $1\times10^{-6}$m.} \label{1D_WIDTH1E-6}
+\end{figure}
+
+\begin{figure}
+	\includegraphics*[width=0.96\linewidth,clip]{2D_WIDTH1E-6}
+	\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, with a square aperture of width of $1\times10^{-6}$m.} \label{2D_WIDTH1E-6}
+\end{figure}
+
+Changing the aperture to a rectangle (for the 2-D plot) produces a more rectangular interference pattern. For the plot shown in figure \ref{2D_Rectangular}, $x'=2\times10^{-5}$ and $y'=1\times10^{-5}$.
+\begin{figure}[!ht]
+	\includegraphics*[width=0.96\linewidth,clip]{2D_Rectangular}
+	\caption{A 2-dimensional intensity map for the diffraction pattern on the screen, with a rectangular aperture.} \label{2D_Rectangular}
+\end{figure}
+
+\section{IMPROVEMENTS TO CODE}
+The program could have been improved by allowing the use of different, non-rectangular apertures, such as a circular aperture. Fresnel's approximation breaks down at very low distances from the aperture to the screen, so the code could have been extended to compare the plots with the Rayleigh-Sommerfeld approximation, which is more accurate at low z \cite{DeBruijn1970}. If physical components such as RAM were not an issue, the number of points on the screen that could be evaluated would be much higher --- $N=1,000,000$ requires roughly 7.3TiB of RAM for the 2-dimensional integral, and likely a very long computation time! However, increasing N would mean that a much better spatial resolution would be possible, allowing the evaluation and analysis of very near-field patterns that aren't possible in this simulation.
+
+\section{CONCLUSIONS}
+
+Simpson's rule has been shown to be valuable and effective in evaluating integrals, specifically Fresnel's approximation for diffraction of light, producing intensity plots similar to those that would be observed in the laboratory. The method could be improved by increasing $N$ such that a greater spatial resolution is possible, allowing the simulation of very near-field patterns that cannot be done due to restrictions on computational resources.
+
+\section{REFERENCES}
+
+\bibliographystyle{report}
+\bibliography{C:/Users/Francis/Documents/Bibtex/Coding-Report-3}
+
+\end{document}
+

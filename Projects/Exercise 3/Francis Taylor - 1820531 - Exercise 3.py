@@ -3,11 +3,12 @@
 # Author:  Francis Taylor
 # Most comments are above the line they are commenting
 
-import cmath
+# import cmath
 # import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from textwrap import wrap
 
 
 # define constants
@@ -105,8 +106,8 @@ while user_input != 'q':
         '\nChoose an option:\n'
         '\na: 1-D integration,'
         '\nb: 1-D integration with custom values,'
-        '\nc: 2-D integration.'
-        '').lower()
+        '\nc: 2-D integration,'
+        '\n or press \'q\' to quit.\n').lower()
 
     if user_input == 'a':
         print('Performing a 1-dimensional Fresnel integral uing Simpson\'s '
@@ -125,51 +126,123 @@ while user_input != 'q':
         x = np.linspace(x1, x2, N)
         x_prime = np.linspace(x1_prime, x2_prime, N)
 
-        E = simpson_integral(x_prime, k, x, z)
+        E = simpson_integral(x_prime, k, x, z, N)
 
         plt.plot(x, E)
         plt.xlabel('Screen coordinate, x (m)', size=12)
         plt.ylabel('Relative intensity', size=12)
-        plt.plot()
+        plt.show()
 
     if user_input == 'b':
         print('Performing a 1-dimensional Fresnel integral uing Simpson\'s '
               'rule, with custom values. Leave blank for the default value.')
-        _lambda = float(input(
-            'Please enter a value for lambda (in metres - accepts scientific s'
-            'notation): ') or 1E-6)
+        # loop for each value until valid input
+        while True:
+            try:
+                _lambda = float(input(
+                    'Please enter a value for lambda (in metres - accepts '
+                    'scientific notation): ') or 1E-6)
+                if (_lambda <= 0):
+                    raise ValueError('The wavelength must be positive and '
+                                     'greater than 0. Please try again.')
+
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                N = int(input('Please enter a value for N:') or 100)
+                if (N <= 0):
+                    raise ValueError(
+                        'N must be larger than 0. Please try again.')
+                elif (N > 500):
+                    raise ValueError(
+                        'The value of N entered is too large, and will cause '
+                        'performance degradation. Please select a value lower '
+                        'than 500.')
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                E0 = float(input('Please enter a value for the initial '
+                                 'electrical field (E0):') or 1)
+                if (E0 < 0):
+                    raise ValueError(
+                        'E0 cannot be negative. Please enter a positive '
+                        'value.')
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                x1 = float(input(
+                    'Please enter a value for the minimum x coordinate (in '
+                    'metres - accepts scientific notation):') or -0.005)
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                x2 = float(input(
+                    'Please enter a value for the maximum x coordinate (in '
+                    'metres - accepts scientific notation):') or 0.005)
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                x1_prime = float(input(
+                    'Please enter a value for the minimum horizontal aperture '
+                    'limit (in metres - accepts scientific notation):')
+                    or -1E-5)
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                x2_prime = float(input(
+                    'Please enter a value for the maximum horizontal aperture '
+                    'limit (in metres - accepts scientific notation):')
+                    or 1E-5)
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                z = float(input('Please enter a value for the distance between'
+                                ' the aperture and the screen (in metres - '
+                                'accepts scientific notation): ') or 0.02)
+            except ValueError:
+                print('Invalid input. Please try again.')
+                continue
+            else:
+                break
+
         k = 2*np.pi/_lambda
-        N = int(input('Please enter a value for N:') or 100)
-        E0 = float(
-            input('Please enter a value for the initial electrical field (E0):'
-                  ) or 1)
-
-        x1 = float(input(
-            'Please enter a value for the minimum x coordinate (in metres - '
-            'accepts scientific notation):') or -0.005)
-        x2 = float(input(
-            'Please enter a value for the maximum x coordinate (in metres - '
-            'accepts scientific notation):') or 0.005)
-        x1_prime = float(input(
-            'Please enter a value for the minimum aperture limit (in metres - '
-            'accepts scientific notation):') or -1E-5)
-        x2_prime = float(input(
-            'Please enter a value for the maximum aperture limit (in metres - '
-            'accepts scientific notation):') or 1E-5)
-        z = float(input('Please enter a value for the distance between the '
-                        'aperture and the screen (in metres - accepts '
-                        'scientific notation): ')
-                  or 0.02)
-
         x = np.linspace(x1, x2, N)
         x_prime = np.linspace(x1_prime, x2_prime, N)
 
-        E = simpson_integral(x_prime, k, x, z)
+        E = simpson_integral(x_prime, k, x, z, N)
 
         plt.plot(x, E)
         plt.xlabel('Screen coordinate, x (m)', size=12)
         plt.ylabel('Relative intensity', size=12)
-        plt.plot()
+        plt.show()
 
     if user_input == 'c':
         print('Performing a 2-dimensional Fresnel integral uing Simpson\'s '
@@ -329,8 +402,8 @@ while user_input != 'q':
                 E[i, j] = E_x[i] * E_y[j]
 
         plt.imshow(E, cmap=cm.YlOrRd_r)
-        plt.title('2-Dimensional Intensity Map for the Diffraction Fringes on '
-                  'the Screen', size=16)
+        title = '2-Dimensional Intensity Map for the Diffraction Fringes on the Screen'
+        plt.title('\n'.join(wrap(title, 40)), size=16)
         cbar = plt.colorbar()
         cbar.ax.set_ylabel('Relative Intensity')
         plt.xlabel('Relative Horizontal Screen Coordinate', size=12)
