@@ -148,33 +148,33 @@ def define_k(x, y, v_x, v_y, delta_t, i):
 
     """
 
-    k1[i, 0] = v_x
-    k1[i, 1] = v_y
-    k1[i, 2] = gravitational_comp(x, y, 'x')
-    k1[i, 3] = gravitational_comp(x, y, 'y')
+    k1x = v_x
+    k1y = v_y
+    k1vx = gravitational_comp(x, y, 'x')
+    k1vy = gravitational_comp(x, y, 'y')
 
-    k2[i, 0] = v_x + delta_t*k1[i, 2]/2
-    k2[i, 1] = v_y + delta_t*k1[i, 3]/2
-    k2[i, 2] = gravitational_comp(
+    k2x = v_x + delta_t*k1[i, 2]/2
+    k2y = v_y + delta_t*k1[i, 3]/2
+    k2vx = gravitational_comp(
         x + delta_t*k1[i, 0]/2, y + delta_t*k1[i, 1]/2, 'x')
-    k2[i, 3] = gravitational_comp(
+    k2vy = gravitational_comp(
         x + delta_t*k1[i, 0]/2, y + delta_t*k1[i, 1]/2, 'y')
 
-    k3[i, 0] = v_x + delta_t*k2[i, 2]/2
-    k3[i, 1] = v_y + delta_t*k2[i, 3]/2
-    k3[i, 2] = gravitational_comp(
+    k3x = v_x + delta_t*k2[i, 2]/2
+    k3y = v_y + delta_t*k2[i, 3]/2
+    k3vx = gravitational_comp(
         x + delta_t*k2[i, 0]/2, y + delta_t*k2[i, 1]/2, 'x')
-    k3[i, 3] = gravitational_comp(
+    k3vy = gravitational_comp(
         x + delta_t*k2[i, 0]/2, y + delta_t*k2[i, 1]/2, 'y')
 
-    k4[i, 0] = v_x + delta_t*k3[i, 2]/2
-    k4[i, 1] = v_y + delta_t*k3[i, 3]/2
-    k4[i, 2] = gravitational_comp(
+    k4x = v_x + delta_t*k3[i, 2]/2
+    k4y = v_y + delta_t*k3[i, 3]/2
+    k4vx = gravitational_comp(
         x + delta_t*k3[i, 0]/2, y + delta_t*k3[i, 1]/2, 'x')
-    k4[i, 3] = gravitational_comp(
+    k4vy = gravitational_comp(
         x + delta_t*k3[i, 0]/2, y + delta_t*k3[i, 1]/2, 'y')
 
-    return k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i, 2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3]
+    return k1x, k1y, k1vx, k1vy, k2x, k2y, k2vx, k2vy, k3x, k3y, k3vx, k3vy, k4x, k4y, k4vx, k4vy
 
 
 def plot_graphs(x, y):
@@ -184,7 +184,9 @@ def plot_graphs(x, y):
     Parameters
     ----------
         x : array
-            Position
+            Position values for the x-component of motion
+        y : array
+            Position values for the y-component of motion
 
     Returns
     -------
@@ -237,7 +239,7 @@ while user_input != 'q':
             n = 30000
             x = y = v_x = v_y = t = np.zeros(n)
             k1 = k2 = k3 = k4 = np.zeros(shape=(n, 4))
-
+            x[0] = 10E6
             y[0] = 0
             v_x[0] = 0
             v_y[0] = np.sqrt(G*M/x[0])
