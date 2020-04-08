@@ -8,7 +8,6 @@
 # fix text in CLI
 # animate graphs
 # add solar system values as options
-# make gui?
 
 
 # Reference
@@ -61,7 +60,7 @@ def gravitational_comp(x: float, y: float, _dir: str):
         return -G*M*y/(np.square(x) + np.square(y))**(3/2)
 
 
-def stepping_equations(x, y, v_x, v_y, t, delta_t, k1, k2, k3, k4, n):
+def stepping_equations(x, y, v_x, v_y, t, delta_t, k1, k2, k3, k4):
     """
     Calculates x, y, v_x & v_y for each time-step.
 
@@ -101,20 +100,19 @@ def stepping_equations(x, y, v_x, v_y, t, delta_t, k1, k2, k3, k4, n):
         t : array
             An array of time values.
     """
-    for i in range(0, n):
-        x[i+1] = x[i] + delta_t/6 * \
-            (k1[i, 0] + 2*k2[i, 0] + 2*k3[i, 0] + k4[i, 0])
-        y[i+1] = y[i] + delta_t/6 * \
-            (k1[i, 1] + 2*k2[i, 1] + 2*k3[i, 1] + k4[i, 1])
-        v_x[i+1] = v_x[i] + delta_t/6 * \
-            (k1[i, 2] + 2*k2[i, 2] + 2*k3[i, 2] + k4[i, 2])
-        v_y[i+1] = v_y[i] + delta_t/6 * \
-            (k1[i, 3] + 2*k2[i, 3] + 2*k3[i, 3] + k4[i, 3])
-        t[i+1] = t[i] + delta_t
+    x += delta_t/6 * \
+        (k1[0] + 2*k2[0] + 2*k3[0] + k4[0])
+    y += delta_t/6 * \
+        (k1[1] + 2*k2[1] + 2*k3[1] + k4[1])
+    v_x += delta_t/6 * \
+        (k1[2] + 2*k2[2] + 2*k3[2] + k4[2])
+    v_y += delta_t/6 * \
+        (k1[3] + 2*k2[3] + 2*k3[3] + k4[3])
+    t += delta_t
     return x, y, v_x, v_y, t
 
 
-def define_k(x, y, v_x, v_y, delta_t, i):
+def define_k(x, y, v_x, v_y, delta_t):
     """
     Create and handle all the values required for k1 through k4.
 
@@ -132,8 +130,6 @@ def define_k(x, y, v_x, v_y, delta_t, i):
             Values for the y-component of velocity
         delta_t : float
             Timestep to iterate over.
-        i : int
-            Index of the sequence.
 
     Returns
     -------
@@ -145,7 +141,6 @@ def define_k(x, y, v_x, v_y, delta_t, i):
             Values for k3
         k4 : array
             Values for k4
-
     """
 
     k1x = v_x
@@ -153,33 +148,33 @@ def define_k(x, y, v_x, v_y, delta_t, i):
     k1vx = gravitational_comp(x, y, 'x')
     k1vy = gravitational_comp(x, y, 'y')
 
-    k2x = v_x + delta_t*k1[i, 2]/2
-    k2y = v_y + delta_t*k1[i, 3]/2
+    k2x = v_x + delta_t*k1vx/2
+    k2y = v_y + delta_t*k1vy/2
     k2vx = gravitational_comp(
-        x + delta_t*k1[i, 0]/2, y + delta_t*k1[i, 1]/2, 'x')
+        x + delta_t*k1x/2, y + delta_t*k1y/2, 'x')
     k2vy = gravitational_comp(
-        x + delta_t*k1[i, 0]/2, y + delta_t*k1[i, 1]/2, 'y')
+        x + delta_t*k1x/2, y + delta_t*k1y/2, 'y')
 
-    k3x = v_x + delta_t*k2[i, 2]/2
-    k3y = v_y + delta_t*k2[i, 3]/2
+    k3x = v_x + delta_t*k2vx/2
+    k3y = v_y + delta_t*k2vy/2
     k3vx = gravitational_comp(
-        x + delta_t*k2[i, 0]/2, y + delta_t*k2[i, 1]/2, 'x')
+        x + delta_t*k2x/2, y + delta_t*k2y/2, 'x')
     k3vy = gravitational_comp(
-        x + delta_t*k2[i, 0]/2, y + delta_t*k2[i, 1]/2, 'y')
+        x + delta_t*k2x/2, y + delta_t*k2y/2, 'y')
 
-    k4x = v_x + delta_t*k3[i, 2]/2
-    k4y = v_y + delta_t*k3[i, 3]/2
+    k4x = v_x + delta_t*k3vx/2
+    k4y = v_y + delta_t*k3vy/2
     k4vx = gravitational_comp(
-        x + delta_t*k3[i, 0]/2, y + delta_t*k3[i, 1]/2, 'x')
+        x + delta_t*k3x/2, y + delta_t*k3y/2, 'x')
     k4vy = gravitational_comp(
-        x + delta_t*k3[i, 0]/2, y + delta_t*k3[i, 1]/2, 'y')
+        x + delta_t*k3x/2, y + delta_t*k3y/2, 'y')
 
     return k1x, k1y, k1vx, k1vy, k2x, k2y, k2vx, k2vy, k3x, k3y, k3vx, k3vy, k4x, k4y, k4vx, k4vy
 
 
 def plot_graphs(x, y):
     """
-    Handles plotting & animating the graphs.
+    Handle plotting & animating the graphs.
 
     Parameters
     ----------
@@ -187,9 +182,6 @@ def plot_graphs(x, y):
             Position values for the x-component of motion
         y : array
             Position values for the y-component of motion
-
-    Returns
-    -------
     """
 
     plt.plot(x, y)
@@ -229,6 +221,7 @@ while user_input != 'q':
             # do stuff
             print("Using custom values.")
             # do stuff
+            n = abs(int(input("Enter a value for n: ")))
             x[0] = float(input(
                 'Enter a value for the start distance from the Earth (for best'
                 ' results enter a number between 7,000,000 and 20,000,000): '))
@@ -237,25 +230,32 @@ while user_input != 'q':
             print("Using default values.")
             delta_t = 2
             n = 30000
-            x = y = v_x = v_y = t = np.zeros(n)
-            k1 = k2 = k3 = k4 = np.zeros(shape=(n, 4))
-            x[0] = 10E6
+            x = np.zeros(n)
+            y = np.zeros(n)
+            v_x = np.zeros(n)
+            v_y = np.zeros(n)
+            t = np.zeros(n)
+            k1 = np.zeros(shape=(n, 4))
+            k2 = np.zeros(shape=(n, 4))
+            k3 = np.zeros(shape=(n, 4))
+            k4 = np.zeros(shape=(n, 4))
+            x[0] = 10000000
             y[0] = 0
             v_x[0] = 0
             v_y[0] = np.sqrt(G*M/x[0])
-            print('defining k')
-
+            print(G, M, x[0], v_y[0])
             # iterate here and call functions, rather than iterating in fns
 
-            for i in range(0, n):
-                k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i,
-                                                                                                             1], k3[i, 2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x, y, v_x, v_y, delta_t, i)
+            for i in range(0, n-1):
+                k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
+                                                                                                                       2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t)
 
             # k1, k2, k3, k4 = define_k(x, y, v_x, v_y, delta_t, n)
-            print('time stepping')
-            x, y, v_x, v_y, t = stepping_equations(
-                x, y, v_x, v_y, t, delta_t, k1, k2, k3, k4, n)
+                x[i+1], y[i+1], v_x[i+1], v_y[i+1], t[i+1] = stepping_equations(
+                    x[i], y[i], v_x[i], v_y[i], t[i], delta_t, k1[i, ], k2[i, ], k3[i, ], k4[i, ])
+            print(k1)
+            print(x)
             print('plotting')
-            plot_graphs(x, y)
+            plot_graphs(x, y)  # anim?
             print('plotted?')
             # break
