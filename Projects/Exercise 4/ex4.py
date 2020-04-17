@@ -5,7 +5,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.animation as anim  # for animating the graphs oh yea yea
+import matplotlib.animation as anim  # for animating the graphs
+from tqdm import tqdm
 
 # define constants
 G = 6.6743015E-11
@@ -46,9 +47,9 @@ def gravitational_comp(x: float, y: float, _dir: str, fn: str):
 
     elif fn == 'moon':
         if _dir == 'x':
-            return -G*M_E*x/abs((np.square(x) + np.square(y))**(1/2) - M_E)**3 - G*M_M*x/abs((np.square(x) + np.square(y))**(1/2) - M_M)**3
+            return -G*M_E*x/(np.square(x) + np.square(y))**(3/2) - G*M_M*x/(np.square(x) + np.square(y))**(3/2)
         elif _dir == 'y':
-            return -G*M_E*y/abs((np.square(x) + np.square(y))**(1/2) - M_E)**3 - G*M_M*y/abs((np.square(x) + np.square(y))**(1/2) - M_M)**3
+            return -G*M_E*y/(np.square(x) + np.square(y))**(3/2) - G*M_M*y/(np.square(x) + np.square(y))**(3/2)
 
 
 def calculate_energies(x: float, y: float, v_x: float, v_y: float):
@@ -409,7 +410,7 @@ while user_input != 'q':
         k4 = np.zeros(shape=(n, 4))
 
         # iterate here and call functions, rather than iterating in fns
-        for i in range(0, n-1):
+        for i in tqdm(range(0, n-1), desc='Simulating...', bar_format='{desc}: {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t)
             # i have no idea why the linter is breaking the line in two in such a weird way?
@@ -471,7 +472,7 @@ while user_input != 'q':
         k4 = np.zeros(shape=(n, 4))
 
         # iterate here and call functions, rather than iterating in fns
-        for i in range(0, n-1):
+        for i in tqdm(range(0, n-1), desc='Simulating...', bar_format='{desc}: {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t)
             # i have no idea why the linter is breaking the line in two in such a weird way?
@@ -511,7 +512,7 @@ while user_input != 'q':
 
         elif custom_values == 'n':
             delta_t = 2
-            n = 250000
+            n = 1E6
             # create arrays for positional variables
             x = np.zeros(n)
             y = np.zeros(n)
@@ -525,7 +526,7 @@ while user_input != 'q':
             v_y[0] = 0
             print(x[0], y[0], v_x[0], v_y[0])
             print(
-                'Using default values.\nT = 500000s\n\u0394t = 2s\nInitial Orbit Height = 7000000m\nv = {:.2f}ms\u207b\u00b9'.format(v_x[0]))
+                'Using default values.\nT = 2000000s\n\u0394t = 2s\nInitial Orbit Height = 7000000m\nv = {:.2f}ms\u207b\u00b9'.format(v_x[0]))
 
         # create arrays for rk4
         k1 = np.zeros(shape=(n, 4))
@@ -534,7 +535,7 @@ while user_input != 'q':
         k4 = np.zeros(shape=(n, 4))
 
         # iterate here and call functions, rather than iterating in fns
-        for i in range(0, n-1):
+        for i in tqdm(range(0, n-1), desc='Simulating...', bar_format='{desc}: {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t, 'moon')
             # i have no idea why the linter is breaking the line in two in such a weird way?
@@ -543,9 +544,11 @@ while user_input != 'q':
                 x[i], y[i], v_x[i], v_y[i], t[i], delta_t, k1[i, ], k2[i, ], k3[i, ], k4[i, ])
 
             # break fn if we hit the Earth or Moon
-            if (np.sqrt(np.square(x[i]) + np.square(y[i])) <= r_E):
+            if (np.sqrt(np.square(x[i]) + np.square(y[i])) <= r_E) and y[i] < r/2:
+                print("Crashed into the Earth!")
                 break
-            elif (abs(np.sqrt(np.square(x[i]) + np.square(y[i])) - r) <= (r_M)):
+            elif (abs(np.sqrt(np.square(x[i]) + np.square(y[i])) - r) <= (r_M)) and y[i] > r/2:
+                print("Crashed into the Moon!")
                 break
 
         plot_graphs(x, y)  # anim?
