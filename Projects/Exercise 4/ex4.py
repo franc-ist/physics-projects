@@ -15,7 +15,7 @@ M_M = 7.342E22  # mass of the Moon
 m = 1.5E6  # roughly the mass of Falcon Heavy
 r_E = 6.3781E6  # radius of Earth
 r_M = 1.7374E6  # radius of Moon
-r = 384.4E6  # distance between Earth & Moon
+r = 384.403E6  # distance between Earth & Moon
 
 
 def gravitational_comp(x: float, y: float, _dir: str, fn: str):
@@ -41,15 +41,15 @@ def gravitational_comp(x: float, y: float, _dir: str, fn: str):
     """
     if fn == 'earth':
         if _dir == 'x':
-            return -G*M_E*x/(np.square(x) + np.square(y))**(3/2)
+            return -G*M_E*x/((np.square(x) + np.square(y))**(3/2))
         elif _dir == 'y':
-            return -G*M_E*y/(np.square(x) + np.square(y))**(3/2)
+            return -G*M_E*y/((np.square(x) + np.square(y))**(3/2))
 
     elif fn == 'moon':
         if _dir == 'x':
-            return -G*M_E*x/(np.square(x) + np.square(y))**(3/2) - G*M_M*x/(np.square(x) + np.square(y))**(3/2)
+            return (-G*M_E*x/(np.square(x) + np.square(y))**(3/2)) - (G*M_M*x/((np.square(x) + np.square(y-r))**(3/2)))
         elif _dir == 'y':
-            return -G*M_E*y/(np.square(x) + np.square(y))**(3/2) - G*M_M*y/(np.square(x) + np.square(y))**(3/2)
+            return (-G*M_E*y/(np.square(x) + np.square(y))**(3/2)) - (G*M_M*(y-r)/((np.square(x) + np.square(y-r))**(3/2)))
 
 
 def calculate_energies(x: float, y: float, v_x: float, v_y: float):
@@ -278,10 +278,10 @@ def _custom_values():
         try:
             x = float(
                 input("Please enter a value for the initial tangential "
-                      "position: "))
+                      "position: ") or 7E6)
             y = float(
                 input("Please enter a value for the initial radial "
-                      "position: "))
+                      "position: ") or 0)
             if (np.sqrt(np.square(x) + np.square(y)) <= r_E):
                 raise ValueError('Oops! That position is smaller than the '
                                  'radius of the Earth. Please enter a larger '
@@ -296,7 +296,7 @@ def _custom_values():
         try:
             v_x = float(
                 input("Please enter a value for the initial tangential "
-                      "speed: "))
+                      "speed: ") or 7500)
         except ValueError:
             print('Invalid input. Please try again.')
             continue
@@ -307,7 +307,7 @@ def _custom_values():
         try:
             v_y = float(
                 input("Please enter a value for the initial radial "
-                      "speed: "))
+                      "speed: ") or 0)
         except ValueError:
             print('Invalid input. Please try again.')
             continue
@@ -384,7 +384,7 @@ while user_input != 'q':
         if custom_values == 'y':
             x, y, v_x, v_y, delta_t, n, T = _custom_values()
             t = np.zeros(n)
-            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = {}m\nv_x = {:.2f}ms\u207b\u00b9\nv_y = {:.2f}ms\u207b\u00b9'.format(
+            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = {}m\nv_x = {:.2f}m/s\nv_y = {:.2f}m/s'.format(
                 T, delta_t, x[0], y[0], v_x[0], v_y[0]))
         elif custom_values == 'n':
             delta_t = 2
@@ -401,7 +401,7 @@ while user_input != 'q':
             v_x[0] = 0
             v_y[0] = np.sqrt(G*M_E/x[0])
             print(
-                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv = {:.2f}ms\u207b\u00b9'.format(v_y[0]))
+                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv = {:.2f}m/s'.format(v_y[0]))
 
         # create arrays for rk4
         k1 = np.zeros(shape=(n, 4))
@@ -409,8 +409,8 @@ while user_input != 'q':
         k3 = np.zeros(shape=(n, 4))
         k4 = np.zeros(shape=(n, 4))
 
-        # iterate here and call functions, rather than iterating in fns
-        for i in tqdm(range(0, n-1), desc='Simulating...', bar_format='{desc}: {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}'):
+        # iterates through the rk4 values and creates a progress bar
+        for i in tqdm(range(0, n-1), desc='Simulating...', mininterval=0.25, bar_format='{desc} {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}]'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t)
             # i have no idea why the linter is breaking the line in two in such a weird way?
@@ -445,7 +445,7 @@ while user_input != 'q':
         if custom_values == 'y':
             x, y, v_x, v_y, delta_t, n, T = _custom_values()
             t = np.zeros(n)
-            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = {}m\nv_x = {:.2f}ms\u207b\u00b9\nv_y = {:.2f}ms\u207b\u00b9'.format(
+            print('Using custom values.\nT={}s\n\u0394t={}s\nx={}m\ny={}m\nv_x={: .2f}m/s\nv_y={: .2f}m/s'.format(
                 T, delta_t, x[0], y[0], v_x[0], v_y[0]))
 
         elif custom_values == 'n':
@@ -463,7 +463,7 @@ while user_input != 'q':
             v_x[0] = 0
             v_y[0] = 7500
             print(
-                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv = {:.2f}ms\u207b\u00b9'.format(v_y[0]))
+                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv = {:.2f}m/s'.format(v_y[0]))
 
         # create arrays for rk4
         k1 = np.zeros(shape=(n, 4))
@@ -471,8 +471,8 @@ while user_input != 'q':
         k3 = np.zeros(shape=(n, 4))
         k4 = np.zeros(shape=(n, 4))
 
-        # iterate here and call functions, rather than iterating in fns
-        for i in tqdm(range(0, n-1), desc='Simulating...', bar_format='{desc}: {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}'):
+        # iterates through the rk4 values and creates a progress bar
+        for i in tqdm(range(0, n-1), desc='Simulating...', mininterval=0.25, bar_format='{desc} {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}]'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t)
             # i have no idea why the linter is breaking the line in two in such a weird way?
@@ -507,12 +507,12 @@ while user_input != 'q':
         if custom_values == 'y':
             x, y, v_x, v_y, delta_t, n, T = _custom_values()
             t = np.zeros(n)
-            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = {}m\nv_x = {:.2f}ms\u207b\u00b9\nv_y = {:.2f}ms\u207b\u00b9'.format(
+            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = {}m\nv_x = {:.2f}m/s\nv_y = {:.2f}m/s'.format(
                 T, delta_t, x[0], y[0], v_x[0], v_y[0]))
 
         elif custom_values == 'n':
             delta_t = 2
-            n = 1E6
+            n = 500000
             # create arrays for positional variables
             x = np.zeros(n)
             y = np.zeros(n)
@@ -524,9 +524,8 @@ while user_input != 'q':
             y[0] = -7E6
             v_x[0] = 10591
             v_y[0] = 0
-            print(x[0], y[0], v_x[0], v_y[0])
             print(
-                'Using default values.\nT = 2000000s\n\u0394t = 2s\nInitial Orbit Height = 7000000m\nv = {:.2f}ms\u207b\u00b9'.format(v_x[0]))
+                'Using default values.\nT = 1000000s\n\u0394t = 2s\nInitial Orbit Height = {:.0f}m\nv = {:.2f}m/s'.format(y[0], v_x[0]))
 
         # create arrays for rk4
         k1 = np.zeros(shape=(n, 4))
@@ -534,8 +533,8 @@ while user_input != 'q':
         k3 = np.zeros(shape=(n, 4))
         k4 = np.zeros(shape=(n, 4))
 
-        # iterate here and call functions, rather than iterating in fns
-        for i in tqdm(range(0, n-1), desc='Simulating...', bar_format='{desc}: {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}'):
+        # iterates through the rk4 values and creates a progress bar
+        for i in tqdm(range(0, n-1), desc='Simulating...', mininterval=0.25, bar_format='{desc} {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}]'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t, 'moon')
             # i have no idea why the linter is breaking the line in two in such a weird way?
@@ -545,10 +544,10 @@ while user_input != 'q':
 
             # break fn if we hit the Earth or Moon
             if (np.sqrt(np.square(x[i]) + np.square(y[i])) <= r_E) and y[i] < r/2:
-                print("Crashed into the Earth!")
+                print("\nCrashed into the Earth!")
                 break
-            elif (abs(np.sqrt(np.square(x[i]) + np.square(y[i])) - r) <= (r_M)) and y[i] > r/2:
-                print("Crashed into the Moon!")
+            elif (abs(np.sqrt(np.square(x[i]) + np.square(y[i] - r))) <= (r_M)) and y[i] > r/2:
+                print("\nCrashed into the Moon!")
                 break
 
         plot_graphs(x, y)  # anim?
