@@ -304,7 +304,7 @@ def _custom_values():
                 raise ValueError('Oops! That position is smaller than the '
                                  'radius of the Earth. Please enter a larger '
                                  'value for x or y.')
-            elif (np.sqrt(mp.square(x) + np.square(y-r)) <= r_M) and y > r/2:
+            elif (np.sqrt(np.square(x) + np.square(y-r)) <= r_M) and y > r/2:
                 raise ValueError('Oops! That position is smaller than the '
                                  'radius of the Moon. Please enter a different'
                                  ' value for x or y.')
@@ -370,17 +370,35 @@ def plot_graphs(x, y, t, E_t, E_g, E_k):
             Kinetic energy values.
 
     """
+    fig, ax = plt.subplots()
+
     # create positional graph
-    plt.plot(x, y)
-    plt.xlabel('Relative distance in x direction (m)')
-    plt.ylabel('Relative distance in y direction (m)')
+    ax.plot(x, y, color='r', label='Rocket Path')
+    ax.set_xlabel('Relative distance in x direction (m)')
+    ax.set_ylabel('Relative distance in y direction (m)')
     # create a green dot to represent the Earth
-    plt.scatter(0, 0, s=6.37E2, color='green')
+    ax.add_patch(plt.Circle((0, 0), 6.37E6, color='green', label='Earth'))
     # create a grey dot to represent the Moon
     if user_input == 'c':
-        plt.scatter(0, r, s=1.74E2, color='grey')
+        ax.add_patch(plt.Circle((0, r), 1.74E6, color='grey', label='Moon'))
     # attempt to set axes to equal sizes
-    plt.gca().set_aspect('equal', adjustable='box')
+    ax.set_aspect('equal', 'box')
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1),
+              ncol=2, fancybox=True, shadow=True)
+
+    rocket, = ax.plot([], [], 'ro')
+
+    def init():
+        rocket.set_data([], [])
+        return rocket,
+
+    def update(i):
+        rocket.set_data(x[i-1], y[i-1])
+        return rocket,
+
+    rocket_animation = anim.FuncAnimation(
+        fig, update, interval=0.05, blit=True, init_func=init, repeat=True)
+
     plt.show()
 
     # create energy graph
@@ -389,7 +407,7 @@ def plot_graphs(x, y, t, E_t, E_g, E_k):
     plt.plot(t, E_t, label='Total Energy')
     plt.xlabel('Time (s)')
     plt.ylabel('Energy (J)')
-    plt.legend()
+    plt.legend(ncol=2, fancybox=True, shadow=True)
     plt.show()
 
 
@@ -474,7 +492,7 @@ while user_input != 'q':
             if (np.sqrt(np.square(x[i] + np.square(y[i])) <= r_E)):
                 break
 
-        plot_graphs(x, y, t, E_t, E_g, E_k)  # anim?
+        plot_graphs(x, y, t, E_t, E_g, E_k)
 
     elif user_input == 'b':
         print('Simulating an elliptical orbit around the Earth.')
@@ -548,7 +566,7 @@ while user_input != 'q':
             if (np.sqrt(np.square(x[i]) + np.square(y[i])) <= r_E):
                 break
 
-        plot_graphs(x, y, t, E_t, E_g, E_k)  # anim?
+        plot_graphs(x, y, t, E_t, E_g, E_k)
 
     elif user_input == 'c':
         print('Simulating a slingshot orbit around the moon.')
@@ -626,4 +644,4 @@ while user_input != 'q':
                 print("\nCrashed into the Moon!")
                 break
 
-        plot_graphs(x, y, t, E_t, E_g, E_k)  # anim?
+        plot_graphs(x, y, t, E_t, E_g, E_k)
