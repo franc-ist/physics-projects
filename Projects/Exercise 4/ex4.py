@@ -31,7 +31,7 @@ def gravitational_comp(x: float, y: float, _dir: str, fn: str):
         _dir : str
             Direction to evaluate in.
         fn : str
-            Specifies which equation of motion to use.
+            Specifies which equation of motion to use (earth or moon).
 
     Returns
     -------
@@ -45,6 +45,8 @@ def gravitational_comp(x: float, y: float, _dir: str, fn: str):
         elif _dir == 'y':
             return -G*M_E*y/((np.square(x) + np.square(y))**(3/2))
 
+    # use modified equation that takes into account separation of the Moon and
+    # Earth (hence why we use `y-r` instead of just `y`)
     elif fn == 'moon':
         if _dir == 'x':
             return (-G*M_E*x/(np.square(x) + np.square(y))**(3/2)) - (G*M_M*x/((np.square(x) + np.square(y-r))**(3/2)))
@@ -52,7 +54,7 @@ def gravitational_comp(x: float, y: float, _dir: str, fn: str):
             return (-G*M_E*y/(np.square(x) + np.square(y))**(3/2)) - (G*M_M*(y-r)/((np.square(x) + np.square(y-r))**(3/2)))
 
 
-def calculate_energies(x: float, y: float, v_x: float, v_y: float):
+def calculate_energies(x: float, y: float, v_x: float, v_y: float, fn: str = None):
     """
     Calculate gravitational and kinetic components of the energy of the rocket.
 
@@ -66,6 +68,9 @@ def calculate_energies(x: float, y: float, v_x: float, v_y: float):
             Tangential component of velocity.
         v_y : float
             Radial component of velocity.
+        fn : str
+            Define whether an extra term is needed for GPE (used in the moon
+            slingshot).[Optional]
 
     Returns
     -------
@@ -77,6 +82,15 @@ def calculate_energies(x: float, y: float, v_x: float, v_y: float):
             Total energy of the rocket.
 
     """
+    E_k = (1/2) * m * (np.square(v_x) + np.square(v_y))
+    if fn == 'moon':
+        E_g = (-G*M_E*m)/(np.sqrt(np.square(x) + np.square(y))) + \
+            (-G*M_M*m)/(np.sqrt(np.square(x) + np.square(y)))
+    else:
+        E_g = (-G*M_E*m)/(np.sqrt(np.square(x) + np.square(y)))
+    E_t = E_k + E_g
+
+    return E_k, E_g, E_t
 
 
 def stepping_equations(x, y, v_x, v_y, t, delta_t: float, k1, k2, k3, k4):
@@ -165,6 +179,7 @@ def define_k(x, y, v_x, v_y, delta_t: float, orbit: str = None):
             Values for k4
 
     """
+    # use equations for dual body orbits
     if orbit == 'moon':
         k1x = v_x
         k1y = v_y
@@ -191,6 +206,7 @@ def define_k(x, y, v_x, v_y, delta_t: float, orbit: str = None):
             x + delta_t*k3x/2, y + delta_t*k3y/2, 'x', 'moon')
         k4vy = gravitational_comp(
             x + delta_t*k3x/2, y + delta_t*k3y/2, 'y', 'moon')
+    # this should be used for single body orbits
     else:
         k1x = v_x
         k1y = v_y
@@ -253,8 +269,9 @@ def _custom_values():
             if (T <= 0):
                 raise ValueError(
                     'T must be larger than 0. Please try again.')
+        # not a float
         except ValueError:
-            print('Invalid input.')
+            print('Invalid input. Please enter a float.')
             continue
         else:
             break
@@ -267,11 +284,12 @@ def _custom_values():
                 raise ValueError(
                     '\u0394t must be larger than 0. Please try again.')
         except ValueError:
-            print('Invalid input. Please try again.')
+            print('Invalid input. Please enter a float.')
             continue
         else:
             break
 
+    # set n to nearest integer
     n = round(T/delta_t)
 
     while True:
@@ -282,10 +300,15 @@ def _custom_values():
             y = float(
                 input("Please enter a value for the initial radial "
                       "position: ") or 0)
-            if (np.sqrt(np.square(x) + np.square(y)) <= r_E):
+            if (np.sqrt(np.square(x) + np.square(y)) <= r_E) and y < r/2:
                 raise ValueError('Oops! That position is smaller than the '
                                  'radius of the Earth. Please enter a larger '
                                  'value for x or y.')
+            elif (np.sqrt(mp.square(x) + np.square(y-r)) <= r_M) and y > r/2:
+                raise ValueError('Oops! That position is smaller than the '
+                                 'radius of the Moon. Please enter a different'
+                                 ' value for x or y.')
+        # not a valid position value
         except ValueError:
             print('Invalid input. Please try again.')
             continue
@@ -295,10 +318,9 @@ def _custom_values():
     while True:
         try:
             v_x = float(
-                input("Please enter a value for the initial tangential "
-                      "speed: ") or 7500)
+                input("Please enter a value for the initial value of v_x: ") or 7500)
         except ValueError:
-            print('Invalid input. Please try again.')
+            print('Invalid value entered for v_x. Please try again.')
             continue
         else:
             break
@@ -306,10 +328,9 @@ def _custom_values():
     while True:
         try:
             v_y = float(
-                input("Please enter a value for the initial radial "
-                      "speed: ") or 0)
+                input("Please enter a value for the initial value of v_y: ") or 0)
         except ValueError:
-            print('Invalid input. Please try again.')
+            print('Invalid value entered for v_y. Please try again.')
             continue
         else:
             break
@@ -329,26 +350,46 @@ def _custom_values():
     return ax, ay, av_x, av_y, delta_t, n, T
 
 
-def plot_graphs(x, y):
+def plot_graphs(x, y, t, E_t, E_g, E_k):
     """
     Handle plotting & animating the graphs.
 
     Parameters
     ----------
-        x: array_like
-            Position values for the x-component of motion
-        y: array_like
-            Position values for the y-component of motion
+        x : array_like
+            Position values for the x-component of motion.
+        y : array_like
+            Position values for the y-component of motion.
+        t : array_like
+            Array of time values.
+        E_t : array_like
+            Total energy values.
+        E_g : array_like
+            Gravitational potential energy values.
+        E_k : array_like
+            Kinetic energy values.
 
     """
+    # create positional graph
     plt.plot(x, y)
     plt.xlabel('Relative distance in x direction (m)')
     plt.ylabel('Relative distance in y direction (m)')
-    # creates a green dot to represent the Earth
+    # create a green dot to represent the Earth
     plt.scatter(0, 0, s=6.37E2, color='green')
+    # create a grey dot to represent the Moon
     if user_input == 'c':
         plt.scatter(0, r, s=1.74E2, color='grey')
+    # attempt to set axes to equal sizes
     plt.gca().set_aspect('equal', adjustable='box')
+    plt.show()
+
+    # create energy graph
+    plt.plot(t, E_g, label='Gravitational Energy')
+    plt.plot(t, E_k, label='Kinetic Energy')
+    plt.plot(t, E_t, label='Total Energy')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Energy (J)')
+    plt.legend()
     plt.show()
 
 
@@ -371,21 +412,22 @@ while user_input != 'q':
                 # allows the user to change the paramters used in the
                 # calculation
                 custom_values = str(input(
-                    "Would you like to specify the values used in the simulation?"
-                    " (y/n) ")).lower()
+                    "Would you like to specify the values used in the "
+                    "simulation? (y/n) ")).lower()
                 if custom_values == 'y' or custom_values == 'n':
                     break
                 else:
                     raise ValueError()
             except ValueError:
                 # not a string
-                print("Invalid input. Please try again.")
+                print("Invalid input. Please enter 'y' or 'n'.")
                 continue
         if custom_values == 'y':
             x, y, v_x, v_y, delta_t, n, T = _custom_values()
             t = np.zeros(n)
-            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = {}m\nv_x = {:.2f}m/s\nv_y = {:.2f}m/s'.format(
-                T, delta_t, x[0], y[0], v_x[0], v_y[0]))
+            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny ='
+                  ' {}m\nv_x = {:.2f}m/s\nv_y = {:.2f}m/s'.format(
+                      T, delta_t, x[0], y[0], v_x[0], v_y[0]))
         elif custom_values == 'n':
             delta_t = 2
             n = 30000
@@ -401,7 +443,8 @@ while user_input != 'q':
             v_x[0] = 0
             v_y[0] = np.sqrt(G*M_E/x[0])
             print(
-                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv = {:.2f}m/s'.format(v_y[0]))
+                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv'
+                ' = {:.2f}m/s'.format(v_y[0]))
 
         # create arrays for rk4
         k1 = np.zeros(shape=(n, 4))
@@ -409,20 +452,29 @@ while user_input != 'q':
         k3 = np.zeros(shape=(n, 4))
         k4 = np.zeros(shape=(n, 4))
 
+        # create arrays for energies
+        E_t = np.zeros(n)
+        E_g = np.zeros(n)
+        E_k = np.zeros(n)
+
         # iterates through the rk4 values and creates a progress bar
         for i in tqdm(range(0, n-1), desc='Simulating...', mininterval=0.25, bar_format='{desc} {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}]'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t)
-            # i have no idea why the linter is breaking the line in two in such a weird way?
+            # i have no idea why the linter is breaking the line in two in
+            # such a weird way? but it works so POG
 
             x[i+1], y[i+1], v_x[i+1], v_y[i+1], t[i+1] = stepping_equations(
                 x[i], y[i], v_x[i], v_y[i], t[i], delta_t, k1[i, ], k2[i, ], k3[i, ], k4[i, ])
+
+            E_k[i], E_g[i], E_t[i] = calculate_energies(
+                x[i], y[i], v_x[i], v_y[i])
 
             # break fn if we hit the Earth
             if (np.sqrt(np.square(x[i] + np.square(y[i])) <= r_E)):
                 break
 
-        plot_graphs(x, y)  # anim?
+        plot_graphs(x, y, t, E_t, E_g, E_k)  # anim?
 
     elif user_input == 'b':
         print('Simulating an elliptical orbit around the Earth.')
@@ -432,21 +484,23 @@ while user_input != 'q':
                 # allows the user to change the paramters used in the
                 # calculation
                 custom_values = str(input(
-                    "Would you like to specify the values used in the simulation?"
-                    " (y/n) ")).lower()
+                    "Would you like to specify the values used in the "
+                    "simulation? (y/n) ")).lower()
                 if custom_values == 'y' or custom_values == 'n':
+                    # valid option
                     break
                 else:
                     raise ValueError()
             except ValueError:
                 # not a string
-                print("Invalid input. Please try again.")
+                print("Invalid input. Please enter 'y' or 'n'.")
                 continue
         if custom_values == 'y':
             x, y, v_x, v_y, delta_t, n, T = _custom_values()
             t = np.zeros(n)
-            print('Using custom values.\nT={}s\n\u0394t={}s\nx={}m\ny={}m\nv_x={: .2f}m/s\nv_y={: .2f}m/s'.format(
-                T, delta_t, x[0], y[0], v_x[0], v_y[0]))
+            print('Using custom values.\nT={}s\n\u0394t={}s\nx={}m'
+                  '\ny={}m\nv_x={: .2f}m/s\nv_y={: .2f}m/s'.format(
+                      T, delta_t, x[0], y[0], v_x[0], v_y[0]))
 
         elif custom_values == 'n':
             delta_t = 2
@@ -463,7 +517,8 @@ while user_input != 'q':
             v_x[0] = 0
             v_y[0] = 7500
             print(
-                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv = {:.2f}m/s'.format(v_y[0]))
+                'Using default values.\nT = 60000s\n\u0394t = 2s\nx = 10E6m\nv'
+                ' = {:.2f}m/s'.format(v_y[0]))
 
         # create arrays for rk4
         k1 = np.zeros(shape=(n, 4))
@@ -471,20 +526,29 @@ while user_input != 'q':
         k3 = np.zeros(shape=(n, 4))
         k4 = np.zeros(shape=(n, 4))
 
+        # create arrays for energies
+        E_t = np.zeros(n)
+        E_g = np.zeros(n)
+        E_k = np.zeros(n)
+
         # iterates through the rk4 values and creates a progress bar
         for i in tqdm(range(0, n-1), desc='Simulating...', mininterval=0.25, bar_format='{desc} {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}]'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t)
-            # i have no idea why the linter is breaking the line in two in such a weird way?
+            # i have no idea why the linter is breaking the line in two in
+            # such a weird way? but it works so POG
 
             x[i+1], y[i+1], v_x[i+1], v_y[i+1], t[i+1] = stepping_equations(
                 x[i], y[i], v_x[i], v_y[i], t[i], delta_t, k1[i, ], k2[i, ], k3[i, ], k4[i, ])
+
+            E_k[i], E_g[i], E_t[i] = calculate_energies(
+                x[i], y[i], v_x[i], v_y[i])
 
             # break fn if we hit the Earth
             if (np.sqrt(np.square(x[i]) + np.square(y[i])) <= r_E):
                 break
 
-        plot_graphs(x, y)  # anim?
+        plot_graphs(x, y, t, E_t, E_g, E_k)  # anim?
 
     elif user_input == 'c':
         print('Simulating a slingshot orbit around the moon.')
@@ -502,13 +566,14 @@ while user_input != 'q':
                     raise ValueError()
             except ValueError:
                 # not a string
-                print("Invalid input. Please try again.")
+                print("Invalid input. Please enter 'y' or 'n'.")
                 continue
         if custom_values == 'y':
             x, y, v_x, v_y, delta_t, n, T = _custom_values()
             t = np.zeros(n)
-            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = {}m\nv_x = {:.2f}m/s\nv_y = {:.2f}m/s'.format(
-                T, delta_t, x[0], y[0], v_x[0], v_y[0]))
+            print('Using custom values.\nT = {}s\n\u0394t = {}s\nx = {}m\ny = '
+                  '{}m\nv_x = {:.2f}m/s\nv_y = {:.2f}m/s'.format(
+                      T, delta_t, x[0], y[0], v_x[0], v_y[0]))
 
         elif custom_values == 'n':
             delta_t = 2
@@ -525,7 +590,8 @@ while user_input != 'q':
             v_x[0] = 10591
             v_y[0] = 0
             print(
-                'Using default values.\nT = 1000000s\n\u0394t = 2s\nInitial Orbit Height = {:.0f}m\nv = {:.2f}m/s'.format(y[0], v_x[0]))
+                'Using default values.\nT = 1000000s\n\u0394t = 2s\nInitial '
+                'Orbit Height = {:.0f}m\nv = {:.2f}m/s'.format(y[0], v_x[0]))
 
         # create arrays for rk4
         k1 = np.zeros(shape=(n, 4))
@@ -533,14 +599,24 @@ while user_input != 'q':
         k3 = np.zeros(shape=(n, 4))
         k4 = np.zeros(shape=(n, 4))
 
+        # create arrays for energies
+        # E_ge is contrib from Earth, E_gm is contrib from moon
+        E_t = np.zeros(n)
+        E_g = np.zeros(n)
+        E_k = np.zeros(n)
+
         # iterates through the rk4 values and creates a progress bar
         for i in tqdm(range(0, n-1), desc='Simulating...', mininterval=0.25, bar_format='{desc} {percentage:3.0f}%|{bar}| Iteration {n_fmt} of {total_fmt} [Estimated time remaining: {remaining}, {rate_fmt}]'):
             k1[i, 0], k1[i, 1], k1[i, 2], k1[i, 3], k2[i, 0], k2[i, 1], k2[i, 2], k2[i, 3], k3[i, 0], k3[i, 1], k3[i,
                                                                                                                    2], k3[i, 3], k4[i, 0], k4[i, 1], k4[i, 2], k4[i, 3] = define_k(x[i], y[i], v_x[i], v_y[i], delta_t, 'moon')
-            # i have no idea why the linter is breaking the line in two in such a weird way?
+            # i have no idea why the linter is breaking the line in two in
+            # such a weird way? but it works so POG
 
             x[i+1], y[i+1], v_x[i+1], v_y[i+1], t[i+1] = stepping_equations(
                 x[i], y[i], v_x[i], v_y[i], t[i], delta_t, k1[i, ], k2[i, ], k3[i, ], k4[i, ])
+
+            E_k[i], E_g[i], E_t[i] = calculate_energies(
+                x[i], y[i], v_x[i], v_y[i], 'moon')
 
             # break fn if we hit the Earth or Moon
             if (np.sqrt(np.square(x[i]) + np.square(y[i])) <= r_E) and y[i] < r/2:
@@ -550,4 +626,4 @@ while user_input != 'q':
                 print("\nCrashed into the Moon!")
                 break
 
-        plot_graphs(x, y)  # anim?
+        plot_graphs(x, y, t, E_t, E_g, E_k)  # anim?
