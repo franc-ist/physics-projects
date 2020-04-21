@@ -1,0 +1,168 @@
+\documentclass[twocolumn,prl,nobalancelastpage,aps,10pt]{revtex4-1}
+%\documentclass[rmp,preprint]{revtex4-1}
+\usepackage{graphicx,bm,times}
+
+\usepackage{float} %useful to structure the figures if they're not going where you'd like them to. When beginning a figure environment with "\begin{figure}" add An H to the end to make the placement more forceful like "\begin{figure}[H]"
+
+\usepackage{gensymb} %has some extra symbols like the degree symbol 
+
+\begin{document}
+
+\title{Investigating the motion of a rocket in orbit}
+
+\author{Francis Taylor}
+
+\affiliation{Level 5 Laboratory, School of Physics, University of Bristol.}
+
+\date{\today}
+
+\begin{abstract} beans
+
+\end{abstract}
+
+
+\maketitle
+
+\section{INTRODUCTION AND THEORY}
+
+A satellite in orbit around a body follows an elliptical path, with the barycenter at one of the foci of the ellipse, as described by Kepler's First Law \cite{Kepler1992}. This path is defined by the changing velocity of the satellite as it orbits, being lowest when it is at the apoapsis,  which is derived from Newton's laws of motion and gravitation. The force on two bodies with mass is given by the latter, being \cite{Newton1848}
+
+\begin{equation}\label{universalGravitation}
+	F_{12} = \frac{G m_{1}m_{2}}{r_{12}^{2}} ,
+\end{equation}
+
+where $F_{12}$ is the force between objects 1 and 2, $G$ is the gravitational constant, and $m_{1}$ and $m_{2}$ are the masses of the objects. From this, the equation of motion for an orbiting satellite can be derived using Newton's second law, giving 
+
+\begin{equation}\label{equationMotion}
+m \boldsymbol{\ddot{r}} = - \frac{mMG}{\mid\boldsymbol{r}\mid^{3}}\boldsymbol{r} ,
+\end{equation}
+
+where $m$ is the mass of the satellite, $M$ is the mass of the large body, and $r$ is the position of the satellite relative to the center of the large body.
+%Here you should introduce the experiment. Give some background and history but avoid including irrelevant material,
+%such as where Maxwell went to school or what his dog's name was (unless of course that is relevant!).  This is a good
+%place to introduce relevant theory.  If this is long and complicated then you might want to use a separate section for
+%theory.
+%
+%Try to think of how to maximise the amount of physics in the report.  Although you should state clearly how you did the
+%experiment, it should not be merely a rehash of the script, or include too many trivial details - such as `the graph
+%was plotted with excel'.
+%
+%Equations should usually be numbered and the symbols clearly defined.  Here is an example.
+%
+%The following equation is usually found \cite{white73} to describe well the fraction change in length of the metal
+%($\Delta L/L$)
+%\begin{equation}
+%\frac{\Delta L}{L}  = \alpha \Delta T + \beta. \label{Expansionequation}
+%\end{equation}
+%Here $\alpha$ is known as the thermal expansion coefficient. It is expected that $\beta$ should be zero but is included
+%in the fit to allow for any offsets in the measurements of either temperature difference $\Delta T$ or length change
+%$\Delta L$.
+%
+%You should include references where appropriate \cite{epr}.  A good report has lots of them showing the material has been widely
+%researched - not just lifted from the script \cite{feynman}. Note that you should avoid using web sites as references.  Instead you
+%should search out and reference the original research papers \cite{anderson}.
+
+%\section{EXPERIMENTAL DETAILS}
+%
+%Here you should describe how the experiment was done but again avoid trivial details.  If appropriate, include a
+%diagram of the experimental apparatus. All figures should normally be drawn by the author of the report - not copied
+%from the web or other students work.  If they are copied from somewhere (in whole or in part) then the source should be
+%clearly referenced.
+
+\section{RESULTS}
+
+%Graphs or tables of the actual data obtained should be put in here.  You need to think here about the correct balance
+%between showing all the relevant data you have obtained and conserving space.  If there are a lot of different curves
+%consider either showing them together on one plot, or only showing example curves (if they all look very similar).  It
+%is usually important to show some raw data even if it is just an example, so that the reader can get a better idea of
+%the experimental method.  Normally it is better to show data on a graph, rather than in a table. You should not
+%normally do both.  The exception is where there are just a few data points, or no obvious independent variable: for
+%example, if you had measured the thermal expansion coefficient for 4 different materials, this data summary would be
+%best shown in a table.
+%
+%\begin{figure}
+%\includegraphics*[width=0.96\linewidth,clip]{figure1}
+%\caption{Fractional change in length of the rod ($\Delta L/L$) versus temperature change ($\Delta T$). The solid line
+%is a fit to the linear relation Eq. (\ref{Expansionequation}). Note that the graph does not need a title as this information is contained in the figure caption.} \label{expansionfigure}
+%\end{figure}
+%
+%Graphs should be drawn to maximise the space occupied by the data wherever possible.  Each figure should have a figure
+%caption below it. The figure caption should display all relevant information about the figure, so there is no need for
+%an additional title for the plot.  Data points should normally be shown as symbols and theoretical fits as lines. The
+%meaning of lines should be explained in the figure caption (and/or main text).   If you add a line which has no
+%theoretical relevance then it is known as a `guide to the eye' and should be noted as such in the figure caption. You
+%should make sure that the size of the data symbols and the lettering on the axes are large enough to read clearly when
+%the figure is sized to fit in the document. The axis lettering should be at least as large as the main text.  You might
+%have to move the text around to get the figure and caption on the same page without leaving lots of blank column space
+%(\LaTeX will do this automatically). For the two column format we are using here a good width for the figures is 8\,cm.
+%
+%In most cases error bars should be shown (except where there are 100's of data points or the error bars are too small
+%to be shown). The axes should be clearly labelled (independent variable on x-axis).
+%
+%You should make sure that you describe the data presented in the figures and tables in the text and not only in the
+%figure captions.  The results section should read as a clear piece of prose and not simply as a list.  So you should
+%not (for example) write: "The results of the experiment are shown in  figure \ref{expansionfigure}",  but rather
+%something like: "Figure \ref{expansionfigure} shows the results of the thermal expansion measurements as a function of
+%the change in temperature. The results indicate that there is (as suggested by Eq.\ \ref{Expansionequation}) a linear
+%relationship between the change in temperature and the fractional increase in length.  The value of $\alpha$ derived
+%from fitting the data in the figure is $(1.35 \pm 0.04)\times 10^{-5}$ K$^{-1}$.
+%
+%All figures should be included within the text - not tacked on to the end of the report.
+%
+%{\bf Errors:} You should estimate the error in any numerical values quoted. The experimental value should not be quoted
+%to more than 1 more significant figure greater than the error and the error to only 1 or 2 significant figures. E.g.,
+%the calculations give the mass as $6.2323 \times 10^3$\,kg with an error of  34\,kg.  This should be quoted as mass =
+%$(6.232 \pm 0.03) \times 10^3$\,kg. This way you can immediately see which figure in the experimental result is
+%uncertain. 
+%
+%If you need to include data in tables then you can do so using the \url{\table} and \url{\tabular} commands (see file).
+%\begin{table}
+%\caption{An example table showing some constants.  \protect\url{{|l|l|l|}} in the tabular line determines the number of columns and how these are justified. The vertical bars  and the hline command draws lines around the table.}
+%\label{constantstable}
+%\begin{tabular}{|l|l|l|}
+%\hline
+%Name & symbol & value \\
+%\hline
+%Speed of light  &  $c$ &  $2.99792458\times 10^8$ ms$^{-1}$\\
+%Planck constant & $h$  &  $6.626 069 57(29) \times 10^{-34}$ J s  \\
+%Electron charge & $e$  &  $1.602 176 565(35) \times 10^{-19}$ C\\
+%Avogadro constant & $N_A$ & $6.022 141 29(27) \times 10^{23}$ mol$^{-1}$\\    
+%\hline
+%\end{tabular}
+%\end{table}
+
+
+
+\section{DISCUSSION}
+
+%Here you should discuss you interpretation of your results. In some cases you might combine this section with the
+%results section. The aim is to achieve maximum clarity for the reader.
+
+\section{CONCLUSIONS}
+
+%What have we learnt from this experiment?  How might we do things better?
+
+\section{APPENDIX}
+
+%Feel free to use this document as a template for your report.   The absolute page limit is {\bf 4 pages}.
+%Note that the title and abstract are not in two column format. The font is 10pt Times Roman.  This all occurs automatically if you use this \LaTeX template.
+%
+%{\bf Technical note on including graphs with Latex}  Note the source for this report includes two figure files.  One is
+%a eps file and the other is an png file.  The former would be used with the normal \LaTeX compiler whereas the latter
+%would be used with pdfLatex implementation which produces pdf files directly without going through the intermediate dvi
+%file step.  Note that in the \verb=\includegraphics= command the file type is not specified (just figure1). The
+%relevant type which is searched for is determined by the compiler.)
+
+\section{REFERENCES}
+%Do not include material in your reference list that is not specifically referred to in the text.  It is not a list of
+%things you have read but rather a list of things you refer to in the text. Only refer to web based material if
+%absolutely necessary. You should refer, where ever possible, to the original material in a textbook or academic
+%journal.   A good report should have many references - showing that the subject has been widely researched.  The style
+%to be used for the references is shown below.
+
+\bibliographystyle{report}
+\bibliography{C:/Users/Francis/Documents/Bibtex/Coding-Report-4}
+
+
+
+\end{document}
