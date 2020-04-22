@@ -11,4 +11,24 @@ I.~Newton, A.~Motte, and N.~W. Chittenden,
   Philosophy}},
 \newblock D. Adee, New-York, 1st edition, 1848.
 
+\bibitem{DeVries2011}
+P.~L. DeVries and J.~E. Hasbun,
+\newblock {\em {A First Course in Computational Physics}},
+\newblock Jones and Bartlett Publishers, Sudbury, Mass., 2nd edition, 2011.
+
+\bibitem{Press2007}
+W.~H. Press and W.~T. Vetterling,
+\newblock {\em {Numerical Recipes: The Art of Scientific Computing}},
+\newblock Cambridge Univ. Press, Cambridge, 3rd edition, 2007.
+
+\bibitem{Atkinson1989}
+K.~E. Atkinson,
+\newblock {\em {An introduction to numerical analysis}},
+\newblock John Wiley {\&} Sons, New York, 2nd edition, 1989.
+
+\bibitem{Suli2003}
+E.~S{\"{u}}li and D.~F. Mayers,
+\newblock {\em {An Introduction to Numerical Analysis}},
+\newblock Cambridge University Press, Cambridge, 2003.
+
 \end{thebibliography}

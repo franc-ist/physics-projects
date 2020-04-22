@@ -1,10 +1,12 @@
 \documentclass[twocolumn,prl,nobalancelastpage,aps,10pt]{revtex4-1}
 %\documentclass[rmp,preprint]{revtex4-1}
-\usepackage{graphicx,bm,times}
+\usepackage{graphicx,bm,times, amsmath}
 
 \usepackage{float} %useful to structure the figures if they're not going where you'd like them to. When beginning a figure environment with "\begin{figure}" add An H to the end to make the placement more forceful like "\begin{figure}[H]"
 
 \usepackage{gensymb} %has some extra symbols like the degree symbol 
+
+\graphicspath{{figures/}}
 
 \begin{document}
 
@@ -28,16 +30,65 @@
 A satellite in orbit around a body follows an elliptical path, with the barycenter at one of the foci of the ellipse, as described by Kepler's First Law \cite{Kepler1992}. This path is defined by the changing velocity of the satellite as it orbits, being lowest when it is at the apoapsis,  which is derived from Newton's laws of motion and gravitation. The force on two bodies with mass is given by the latter, being \cite{Newton1848}
 
 \begin{equation}\label{universalGravitation}
-	F_{12} = \frac{G m_{1}m_{2}}{r_{12}^{2}} ,
+	\bm{F_{12}} = - \frac{G m_{1}m_{2}}{\mid\bm{r_{12}}\mid^{2}}\bm{\hat{r}} ,
 \end{equation}
 
-where $F_{12}$ is the force between objects 1 and 2, $G$ is the gravitational constant, and $m_{1}$ and $m_{2}$ are the masses of the objects. From this, the equation of motion for an orbiting satellite can be derived using Newton's second law, giving 
+where $\bm{F_{12}}$ is the force between objects 1 and 2, $G$ is the gravitational constant, $\bm{r_{12}}$ is the distance between the center of the objects (see figure \ref{gravitationFigure}), and $m_{1}$ and $m_{2}$ are the masses of the objects.
+
+\begin{figure}[h!]
+\includegraphics*[width=0.96\linewidth,clip]{newtonGravitation}
+\caption{Newton's Law of Universal Gravitation} \label{gravitationFigure}
+\end{figure}
+
+From this, the equation of motion for an orbiting satellite can be derived using Newton's second law, giving \cite{Newton1848}
 
 \begin{equation}\label{equationMotion}
-m \boldsymbol{\ddot{r}} = - \frac{mMG}{\mid\boldsymbol{r}\mid^{3}}\boldsymbol{r} ,
+m \bm{\ddot{r}} = - \frac{mMG}{\mid\bm{r}\mid^{3}}\bm{r} ,
 \end{equation}
 
-where $m$ is the mass of the satellite, $M$ is the mass of the large body, and $r$ is the position of the satellite relative to the center of the large body.
+where $m$ is the mass of the satellite, $M$ is the mass of the large body, and $r$ is the position of the satellite relative to the centre of the large body. This is an ordinary differential equation, which can be solved using numerical analysis. One solution of this is using the Runge-Kutta family of iterative methods.
+
+\subsection{Runge-Kutta Methods}
+
+The Runge-Kutta methods are used to provide approximate solutions to ordinary differential equations. Such methods discretise a continuous function in both space and time, allowing for integration over discrete time intervals, a technique easily done using computer simulations \cite{DeVries2011}. For this simulation, the 4th-order Runge-Kutta (RK4) method was used. This method evaluates the slope of a function with known initial values at four different points in a given interval, shown in figure \ref{rk4SlopesFigure}, given by the following \cite{Press2007, Atkinson1989}
+
+
+\begin{align}
+k_{1}& = f(x_{n}, y_{n}) \\
+k_{2}& = f(x_{n} + \frac{h}{2}, y_{n} + \frac{hk_{1}}{2})\\
+k_{3}& = f(x_{n} + \frac{h}{2}, y_{n} + \frac{hk_{2}}{2})\\
+k_{4}& = f(x_{n} + h, y_{n} + hk_{3})
+\end{align}
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{rk4Slopes}
+	\caption{Slopes used by the 4th-order Runge-Kutta method.} \label{rk4SlopesFigure}
+\end{figure}
+
+In the context of solving equation \ref{equationMotion}, $h$ is the time step, and $x$ and $y$ are the positional coordinates of the rocket. $k_{1}$ is the slope at the beginning of the interval, calculated using $y$. $k_{2}$ is the slope at the midpoint of the interval, calculated using $y$ and $k_{1}$. $k_{2}$ is also the slope at the midpoint of the interval, but is instead calculated using $k_{2}$ instead of $k_{1}$. Finally, $k_{4}$ is the slope at the end of the interval, calculated using $y$ and $k_{4}$.
+
+The solution to this is then given by the weighted average of the increments \cite{Press2007}
+
+\begin{align}
+y_{n+1}& = y_{n} + \frac{h}{6}(k_{1} + 2k_{2} + 2k_{3} + k_{4}) , \\
+t_{n+1}& = t_{n} + h .
+\end{align}\label{rungeEquation}
+
+As this method is of 4th-order, the global truncation error is of  4th-order, so this method is much more accurate than comparable methods, such as Euler's method, which is 2nd-order \cite{Atkinson1989, Suli2003}. Also of note is that if $f$ is independent of $y$, then RK4 simplifies to Simpson's rule \cite{Suli2003}.
+
+
+A two-dimensional orbit with the larger body at the origin requires several variables that need to be evaluated in four functions, as RK4 couples the variables together:
+
+\begin{align}
+f_{1}(t, xx, y, v_{x}, v_{y})& = \frac{dx}{dt} = v_{x}\\
+f_{2}(t, xx, y, v_{x}, v_{y})& = \frac{dy}{dt} = v_{y}\\
+f_{3}(t, xx, y, v_{x}, v_{y})& = \frac{dv_{x}}{dt} = \frac{-GMx}{(x^{2} + y^{2})^{3/2}}\\
+f_{4}(t, xx, y, v_{x}, v_{y})& = \frac{dv_{y}}{dt} = \frac{-GMy}{(x^{2} + y^{2})^{3/2}}
+\end{align}
+
+%NOTE THIS MAY NEED TO BE UPDATED
+Ignoring the arguments that are not needed, we can apply these functions to each of equations 3-6 to obtain values for $x$, $y$, $v_{x}$ and $v_{y}$ at each increment in the interval. Using this, and applying it to equation 7, a series of time-stepping equations is obtained, where $y$ is replaced by each of the variables listed. These can easily be calculated using a computer, by iterating through a loop.
+
 %Here you should introduce the experiment. Give some background and history but avoid including irrelevant material,
 %such as where Maxwell went to school or what his dog's name was (unless of course that is relevant!).  This is a good
 %place to introduce relevant theory.  If this is long and complicated then you might want to use a separate section for
