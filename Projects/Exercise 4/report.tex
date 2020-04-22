@@ -89,38 +89,31 @@ f_{4}(t, xx, y, v_{x}, v_{y})& = \frac{dv_{y}}{dt} = \frac{-GMy}{(x^{2} + y^{2})
 %NOTE THIS MAY NEED TO BE UPDATED
 Ignoring the arguments that are not needed, we can apply these functions to each of equations 3-6 to obtain values for $x$, $y$, $v_{x}$ and $v_{y}$ at each increment in the interval. Using this, and applying it to equation 7, a series of time-stepping equations is obtained, where $y$ is replaced by each of the variables listed. These can easily be calculated using a computer, by iterating through a loop.
 
-%Here you should introduce the experiment. Give some background and history but avoid including irrelevant material,
-%such as where Maxwell went to school or what his dog's name was (unless of course that is relevant!).  This is a good
-%place to introduce relevant theory.  If this is long and complicated then you might want to use a separate section for
-%theory.
-%
-%Try to think of how to maximise the amount of physics in the report.  Although you should state clearly how you did the
-%experiment, it should not be merely a rehash of the script, or include too many trivial details - such as `the graph
-%was plotted with excel'.
-%
-%Equations should usually be numbered and the symbols clearly defined.  Here is an example.
-%
-%The following equation is usually found \cite{white73} to describe well the fraction change in length of the metal
-%($\Delta L/L$)
-%\begin{equation}
-%\frac{\Delta L}{L}  = \alpha \Delta T + \beta. \label{Expansionequation}
-%\end{equation}
-%Here $\alpha$ is known as the thermal expansion coefficient. It is expected that $\beta$ should be zero but is included
-%in the fit to allow for any offsets in the measurements of either temperature difference $\Delta T$ or length change
-%$\Delta L$.
-%
-%You should include references where appropriate \cite{epr}.  A good report has lots of them showing the material has been widely
-%researched - not just lifted from the script \cite{feynman}. Note that you should avoid using web sites as references.  Instead you
-%should search out and reference the original research papers \cite{anderson}.
+\section{RESULTS AND DISCUSSION}
 
-%\section{EXPERIMENTAL DETAILS}
-%
-%Here you should describe how the experiment was done but again avoid trivial details.  If appropriate, include a
-%diagram of the experimental apparatus. All figures should normally be drawn by the author of the report - not copied
-%from the web or other students work.  If they are copied from somewhere (in whole or in part) then the source should be
-%clearly referenced.
+A circular medium Earth orbit was modelled for 60000s with a time step of 2s, an initial height of 3621km above the Earth's surface and initial velocity of 6313ms$^{-1}$, shown in figure \ref{circDefFig}. The orbit was stable, completing several revolutions in this time period, and this is also confirmed by the energy graph shown in \ref{circDefEn}, as the energy remains constant over time. It can be inferred from this that the rocket remained on an gravitational equipotential line, hence it's height above the surface is constant.
 
-\section{RESULTS}
+\begin{figure}[ht!]
+\includegraphics*[width=0.96\linewidth,clip]{circularDefault}
+\caption{Position of the orbit of a rocket with initial height of 3621km above the Earth's surface and velocity 6313ms$^{-1}$. The path of the rocket is shown in red, the red dot represents the current position of the rocket, and the Earth is represented by the green circle.} \label{circDefFig}
+\end{figure}
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{circularDefaultEnergy}
+	\caption{A plot of energy against time for the circular orbit shown in figure \ref{circDefFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{circDefEn}
+\end{figure}
+
+An elliptical orbit was also modelled for the same time period and initial height, but with an initial velocity of 7500ms$^{-1}$, shown in figure \ref{elDefFig}. Again, this orbit was stable, completing several orbits in the time period, and this is also confirmed by figure \ref{elDefEn}, which shows the energy of the system over time. Several clear periods can be seen, and while the gravitational and kinetic energies oscillate, the total energy remains constant. The periodic nature of the energy is caused by the rocket coming closer and moving away from the Earth, and is a direct consequence of Kepler's Second Law \cite{Kepler1992}. The magnitude of the kinetic and gravitational energy is highest when the rocket is closest to the Earth, and the least when at apoapsis.
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{ellipticalDefault}
+	\caption{Position of the orbit of a rocket with initial height of 3621km above the Earth's surface and initial velocity 7500ms$^{-1}$. The path of the rocket is shown in red, the red dot represents the current position of the rocket, and the Earth is represented by the green circle.} \label{elDefFig}
+\end{figure}
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{ellipticalDefaultEnergy}
+	\caption{A plot of energy against time for the circular orbit shown in figure \ref{elDefFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{elDefEn}
+\end{figure}
 
 %Graphs or tables of the actual data obtained should be put in here.  You need to think here about the correct balance
 %between showing all the relevant data you have obtained and conserving space.  If there are a lot of different curves
@@ -184,7 +177,9 @@ Ignoring the arguments that are not needed, we can apply these functions to each
 
 
 
-\section{DISCUSSION}
+\section{IMPROVEMENTS TO CODE}
+
+As can be seen in the energy graphs (for example figure \ref{circDefEn}), at the end of the simulation, all the energy values jump to 0. This may be because there is an extra time value included in the array, where none exists in the energy arrays, but this could be fixed to remove this, by using validation checks to remove extra zeros at the end of the array. As well as this, the animation used for the graphs crashes when the end of the array is reached. I spent several hours trying to debug this, but could not understand why an extra index was being used for $N$, the total number of iterations, when this was the same as the size of the $x$ and $y$ arrays being passed to the function controlling the animation. An improvement would be to ensure that the animation function was being passed the correct number of iterations. Another improvement to the code would be to make the size of the Earth and Moon on the graphs to scale, as often when the rocket crashes, it is displayed as being in space, when in actuality it has hit the Moon/Earth, and this isn't displayed very well. To improve the simulation, the equation of motion could be adapted to account for relativistic gravitational effects, however as this is outside my area of knowledge I did not feel comfortable implementing this. One final improvement that could be made would be to move a large amount of the code into more functions, as several sections are reused very often. This is not difficult, and was only restricted by time, but an example of a useful function to help remove repetition would be implementing a function to handle all the Pythagoras, which would make the code easier to read.
 
 %Here you should discuss you interpretation of your results. In some cases you might combine this section with the
 %results section. The aim is to achieve maximum clarity for the reader.
