@@ -18,8 +18,8 @@
 
 \date{\today}
 
-\begin{abstract} beans
-
+\begin{abstract}
+The motion of a satellite in orbit was modelled using Newton's Universal Law of Gravitation and solved using the 4th-order Runge-Kutta method for solving ordinary differential equations. The effect on varying the initial height and velocity of the satellite were investigated, and it was found that very small changes in these values could greatly affect the path taken. This model was expanded to simulate two paths of a rocket (figure-of-eight and elliptical) from Low Earth Orbit to the Moon, and back. The figure-of-eight path was found to have a shorter period (9 days, 20 hours and 6 minutes) than the elliptical path (12 days, 3 hours and 36 minutes) and was more stable, with a wider tolerance in the initial values that could give a successful path.
 \end{abstract}
 
 
@@ -87,11 +87,11 @@ f_{4}(t, xx, y, v_{x}, v_{y})& = \frac{dv_{y}}{dt} = \frac{-GMy}{(x^{2} + y^{2})
 \end{align}
 
 %NOTE THIS MAY NEED TO BE UPDATED
-Ignoring the arguments that are not needed, we can apply these functions to each of equations 3-6 to obtain values for $x$, $y$, $v_{x}$ and $v_{y}$ at each increment in the interval. Using this, and applying it to equation 7, a series of time-stepping equations is obtained, where $y$ is replaced by each of the variables listed. These can easily be calculated using a computer, by iterating through a loop.
+Ignoring the arguments that are not needed, we can apply these functions to each of equations 3-6 to obtain values for $x$, $y$, $v_{x}$ and $v_{y}$ at each increment in the interval. Using this, and applying it to equation 7, a series of time-stepping equations is obtained, where $y$ is replaced by each of the variables listed. These can easily be calculated using a computer, by iterating through a loop, with each increment in the interval stored in an array.
 
 \section{RESULTS AND DISCUSSION}
 
-A circular medium Earth orbit was modelled for 60000s with a time step of 2s, an initial height of 3621km above the Earth's surface and initial velocity of 6313ms$^{-1}$, shown in figure \ref{circDefFig}. The orbit was stable, completing several revolutions in this time period, and this is also confirmed by the energy graph shown in \ref{circDefEn}, as the energy remains constant over time. It can be inferred from this that the rocket remained on an gravitational equipotential line, hence it's height above the surface is constant.
+A circular Medium Earth orbit was modelled for 60000s with a time step of 2s, an initial height of 3621km above the Earth's surface and initial velocity of 6313ms$^{-1}$, shown in figure \ref{circDefFig}. The orbit was stable, completing several revolutions in this time period, and this is also confirmed by the energy graph shown in \ref{circDefEn}, as the energy remains constant over time. It can be inferred from this that the rocket remained on an gravitational equipotential line, hence it's height above the surface is constant.
 
 \begin{figure}[ht!]
 \includegraphics*[width=0.96\linewidth,clip]{circularDefault}
@@ -103,6 +103,18 @@ A circular medium Earth orbit was modelled for 60000s with a time step of 2s, an
 	\caption{A plot of energy against time for the circular orbit shown in figure \ref{circDefFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{circDefEn}
 \end{figure}
 
+If the initial height or velocity was too high, the rocket would not enter into a stable orbit, instead moving along a straight path into space, as shown in figure \ref{circHighFig}, or crashing into the Earth. Here, the initial height was increased by 5km to 8621km above the surface of the Earth (15000km from the centre of the Earth), but the initial velocity was kept equal to that in figure \ref{circDefFig}. The rocket was deemed to have crashed if the magnitude of  $x$ and $y$ was less than the radius of the Earth. When simulating the Moon orbit, the same condition was used for the Earth, but a check added to ensure the y-coordinate of the rocket was less than half the distance between the surfaces of the Earth and Moon, $r$. For crashing into the Moon, the code checked if the y-coordinate of the rocket was greater than half the distance between the surfaces, and the magnitude of $x$ and $y-r$ was less than the radius of the Moon.
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{circularTooHigh}
+	\caption{Position of the orbit of a rocket with initial height of 8621km above the Earth's surface and velocity 6313ms$^{-1}$. The path of the rocket is shown in red, the red dot represents the current position of the rocket, and the Earth is represented by the green circle.} \label{circHighFig}
+\end{figure}
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{circularTooHighEnergy}
+	\caption{A plot of energy against time for the circular orbit shown in figure \ref{circHighFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{circHighEn}
+\end{figure}
+
 An elliptical orbit was also modelled for the same time period and initial height, but with an initial velocity of 7500ms$^{-1}$, shown in figure \ref{elDefFig}. Again, this orbit was stable, completing several orbits in the time period, and this is also confirmed by figure \ref{elDefEn}, which shows the energy of the system over time. Several clear periods can be seen, and while the gravitational and kinetic energies oscillate, the total energy remains constant. The periodic nature of the energy is caused by the rocket coming closer and moving away from the Earth, and is a direct consequence of Kepler's Second Law \cite{Kepler1992}. The magnitude of the kinetic and gravitational energy is highest when the rocket is closest to the Earth, and the least when at apoapsis.
 
 \begin{figure}[ht]
@@ -112,68 +124,32 @@ An elliptical orbit was also modelled for the same time period and initial heigh
 
 \begin{figure}[ht]
 	\includegraphics*[width=0.96\linewidth,clip]{ellipticalDefaultEnergy}
-	\caption{A plot of energy against time for the circular orbit shown in figure \ref{elDefFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{elDefEn}
+	\caption{A plot of energy against time for the elliptical orbit shown in figure \ref{elDefFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{elDefEn}
 \end{figure}
 
-%Graphs or tables of the actual data obtained should be put in here.  You need to think here about the correct balance
-%between showing all the relevant data you have obtained and conserving space.  If there are a lot of different curves
-%consider either showing them together on one plot, or only showing example curves (if they all look very similar).  It
-%is usually important to show some raw data even if it is just an example, so that the reader can get a better idea of
-%the experimental method.  Normally it is better to show data on a graph, rather than in a table. You should not
-%normally do both.  The exception is where there are just a few data points, or no obvious independent variable: for
-%example, if you had measured the thermal expansion coefficient for 4 different materials, this data summary would be
-%best shown in a table.
-%
-%\begin{figure}
-%\includegraphics*[width=0.96\linewidth,clip]{figure1}
-%\caption{Fractional change in length of the rod ($\Delta L/L$) versus temperature change ($\Delta T$). The solid line
-%is a fit to the linear relation Eq. (\ref{Expansionequation}). Note that the graph does not need a title as this information is contained in the figure caption.} \label{expansionfigure}
-%\end{figure}
-%
-%Graphs should be drawn to maximise the space occupied by the data wherever possible.  Each figure should have a figure
-%caption below it. The figure caption should display all relevant information about the figure, so there is no need for
-%an additional title for the plot.  Data points should normally be shown as symbols and theoretical fits as lines. The
-%meaning of lines should be explained in the figure caption (and/or main text).   If you add a line which has no
-%theoretical relevance then it is known as a `guide to the eye' and should be noted as such in the figure caption. You
-%should make sure that the size of the data symbols and the lettering on the axes are large enough to read clearly when
-%the figure is sized to fit in the document. The axis lettering should be at least as large as the main text.  You might
-%have to move the text around to get the figure and caption on the same page without leaving lots of blank column space
-%(\LaTeX will do this automatically). For the two column format we are using here a good width for the figures is 8\,cm.
-%
-%In most cases error bars should be shown (except where there are 100's of data points or the error bars are too small
-%to be shown). The axes should be clearly labelled (independent variable on x-axis).
-%
-%You should make sure that you describe the data presented in the figures and tables in the text and not only in the
-%figure captions.  The results section should read as a clear piece of prose and not simply as a list.  So you should
-%not (for example) write: "The results of the experiment are shown in  figure \ref{expansionfigure}",  but rather
-%something like: "Figure \ref{expansionfigure} shows the results of the thermal expansion measurements as a function of
-%the change in temperature. The results indicate that there is (as suggested by Eq.\ \ref{Expansionequation}) a linear
-%relationship between the change in temperature and the fractional increase in length.  The value of $\alpha$ derived
-%from fitting the data in the figure is $(1.35 \pm 0.04)\times 10^{-5}$ K$^{-1}$.
-%
-%All figures should be included within the text - not tacked on to the end of the report.
-%
-%{\bf Errors:} You should estimate the error in any numerical values quoted. The experimental value should not be quoted
-%to more than 1 more significant figure greater than the error and the error to only 1 or 2 significant figures. E.g.,
-%the calculations give the mass as $6.2323 \times 10^3$\,kg with an error of  34\,kg.  This should be quoted as mass =
-%$(6.232 \pm 0.03) \times 10^3$\,kg. This way you can immediately see which figure in the experimental result is
-%uncertain. 
-%
-%If you need to include data in tables then you can do so using the \url{\table} and \url{\tabular} commands (see file).
-%\begin{table}
-%\caption{An example table showing some constants.  \protect\url{{|l|l|l|}} in the tabular line determines the number of columns and how these are justified. The vertical bars  and the hline command draws lines around the table.}
-%\label{constantstable}
-%\begin{tabular}{|l|l|l|}
-%\hline
-%Name & symbol & value \\
-%\hline
-%Speed of light  &  $c$ &  $2.99792458\times 10^8$ ms$^{-1}$\\
-%Planck constant & $h$  &  $6.626 069 57(29) \times 10^{-34}$ J s  \\
-%Electron charge & $e$  &  $1.602 176 565(35) \times 10^{-19}$ C\\
-%Avogadro constant & $N_A$ & $6.022 141 29(27) \times 10^{23}$ mol$^{-1}$\\    
-%\hline
-%\end{tabular}
-%\end{table}
+
+For the slingshot around the moon, there were two options for a stable orbit; a figure-of-eight passing between the Earth and Moon twice, or an elliptical orbit, going round the outside of the Moon without crossing its previous path. The figure-of-eight was easier to implement, as a larger range of values were able to give a path that did not crash into the Moon, however a lot of trial and error was needed to find said values. Figure \ref{moonFoEFig} shows an example of such an orbit, with an initial height of 629km above the Earth's surface, and velocity 10559.9ms$^{-1}$. It was easiest to launch the rocket when it was in Low Earth orbit from the side of the Earth that was opposite the Moon. For the elliptical orbit around the Moon, an initial velocity of 10591ms$^{-1}$ was used. Figure \ref{moonEFig} shows the path taken for this orbit. It was quite surprising to see that a difference of only 31.1ms$^{-1}$ in the initial velocity was all that was needed to obtain each type of orbit, and upon further investigation, it was found that changing the initial velocity in the order of $\times$10$^{-1}$ decided whether the rocket crashed into the moon or not. The figure-of-eight orbit had a smaller period than the elliptical one, completing one orbit in about 850000 seconds, or 9 days, 20 hours and 6 minutes. The elliptical orbit took about 1050000 seconds to complete one period, or 12 days, 3 hours and 36 minutes. The magnitude of the gravitational and kinetic energy of the rocket on the elliptical path was lower than that of the figure-of-eight path, and this can be demonstrated by the smaller second peaks in figure \ref{moonEEn} than in figure \ref{moonFoEEn}, likely caused by the larger distance between the Earth and the rocket in the elliptical path. This is likely caused by the larger loop (seen at the top of figure \ref{moonEFig}) causing the rocket to enter orbit around the Earth again on a wider path. The rocket on the figure-of-eight path does not have this issue, and passes much closer to the Moon and Earth, evidenced by a small peak at roughly 400000 seconds in figure \ref{moonFoEEn} where it passes the Moon, and the large second peaks when it returns to the Earth.
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{moonFoE}
+	\caption{Lunar slingshot orbit of a rocket with initial height of 629km above the Earth's surface and initial velocity 10559.9ms$^{-1}$. The path of the rocket is shown in red, the red dot represents the current position of the rocket, the Moon is represented by the grey dot, and the Earth is represented by the green circle. Both axes are of order 10$\times10^{8}$.} \label{moonFoEFig}
+\end{figure}
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{moonFoEEnergy}
+	\caption{A plot of energy against time for the lunar orbit shown in figure \ref{moonFoEFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{moonFoEEn}
+\end{figure}
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{moonE}
+	\caption{Lunar slingshot orbit of a rocket with initial height of 629km above the Earth's surface and initial velocity 10591ms$^{-1}$. The path of the rocket is shown in red, the red dot represents the current position of the rocket, the Moon is represented by the grey dot, and the Earth is represented by the green circle. Both axes are of order 10$\times10^{8}$.} \label{moonEFig}
+\end{figure}
+
+\begin{figure}[ht]
+	\includegraphics*[width=0.96\linewidth,clip]{moonEEnergy}
+	\caption{A plot of energy against time for the lunar orbit shown in figure \ref{moonEFig}. Gravitational energy is shown by the blue line, kinetic energy by the orange line, and total energy by the green line in between.} \label{moonEEn}
+\end{figure}
+
 
 
 
@@ -181,23 +157,11 @@ An elliptical orbit was also modelled for the same time period and initial heigh
 
 As can be seen in the energy graphs (for example figure \ref{circDefEn}), at the end of the simulation, all the energy values jump to 0. This may be because there is an extra time value included in the array, where none exists in the energy arrays, but this could be fixed to remove this, by using validation checks to remove extra zeros at the end of the array. As well as this, the animation used for the graphs crashes when the end of the array is reached. I spent several hours trying to debug this, but could not understand why an extra index was being used for $N$, the total number of iterations, when this was the same as the size of the $x$ and $y$ arrays being passed to the function controlling the animation. An improvement would be to ensure that the animation function was being passed the correct number of iterations. Another improvement to the code would be to make the size of the Earth and Moon on the graphs to scale, as often when the rocket crashes, it is displayed as being in space, when in actuality it has hit the Moon/Earth, and this isn't displayed very well. To improve the simulation, the equation of motion could be adapted to account for relativistic gravitational effects, however as this is outside my area of knowledge I did not feel comfortable implementing this. One final improvement that could be made would be to move a large amount of the code into more functions, as several sections are reused very often. This is not difficult, and was only restricted by time, but an example of a useful function to help remove repetition would be implementing a function to handle all the Pythagoras, which would make the code easier to read.
 
-%Here you should discuss you interpretation of your results. In some cases you might combine this section with the
-%results section. The aim is to achieve maximum clarity for the reader.
 
 \section{CONCLUSIONS}
 
 %What have we learnt from this experiment?  How might we do things better?
-
-\section{APPENDIX}
-
-%Feel free to use this document as a template for your report.   The absolute page limit is {\bf 4 pages}.
-%Note that the title and abstract are not in two column format. The font is 10pt Times Roman.  This all occurs automatically if you use this \LaTeX template.
-%
-%{\bf Technical note on including graphs with Latex}  Note the source for this report includes two figure files.  One is
-%a eps file and the other is an png file.  The former would be used with the normal \LaTeX compiler whereas the latter
-%would be used with pdfLatex implementation which produces pdf files directly without going through the intermediate dvi
-%file step.  Note that in the \verb=\includegraphics= command the file type is not specified (just figure1). The
-%relevant type which is searched for is determined by the compiler.)
+The 4th-order Runge-Kutta method has been shown to be invaluable in numerically evaluating ordinary differential equations and modelling a satellite in orbit using Newton's gravity. The figure-of-eight Moon orbit is easier to perform, with a larger tolerance in the initial height and velocity values being able to produce a successful orbit. The code could have been improved to include gravitational effects from general relativity.
 
 \section{REFERENCES}
 %Do not include material in your reference list that is not specifically referred to in the text.  It is not a list of
